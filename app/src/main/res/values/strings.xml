@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">towerdle</string>
+    <string name="google_cloud_server_client_id">236075874307-3i9rfec1lujamn3dih8g36sv5fi4f1vt.apps.googleusercontent.com</string>
 </resources>
