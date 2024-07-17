@@ -91,7 +91,18 @@ fun Navigation(
                 }
 
                 is MainEffect.MoveScreen -> {
-                    navHostController.navigate(effect.route)
+                    when(effect.route){
+                        Navigation.Login.route -> { // 로그인 페이지로 돌아갈 시 스택을 남기지 않음
+                            navHostController.navigate(effect.route){
+                                popUpTo(effect.route) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                        else -> {
+                            navHostController.navigate(effect.route)
+                        }
+                    }
                 }
             }
         }
