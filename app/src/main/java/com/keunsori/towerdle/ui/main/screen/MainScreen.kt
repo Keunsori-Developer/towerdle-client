@@ -1,7 +1,5 @@
-package com.keunsori.towerdle.presentation.main.screen
+package com.keunsori.towerdle.ui.main.screen
 
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,11 +16,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
-import com.keunsori.towerdle.presentation.login.LoginEffect
+import androidx.compose.ui.res.stringResource
+import com.keunsori.towerdle.R
 import com.keunsori.towerdle.utils.Navigation
-import com.keunsori.towerdle.presentation.main.MainEffect
-import com.keunsori.towerdle.presentation.main.MainViewModel
+import com.keunsori.towerdle.ui.main.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,24 +35,20 @@ fun MainScreen(viewModel: MainViewModel, onFinish: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Button(onClick = { viewModel.moveToScreen(Navigation.Game.route) }) {
-            Text(text = "게임시작")
+            Text(text = stringResource(id = R.string.game_start))
         }
         Button(onClick = {  }) {
-            Text(text = "챌린지")
+            Text(text = stringResource(id = R.string.challenge))
         }
         Button(onClick = { viewModel.moveToScreen(Navigation.Info.route) }) {
-            Text(text = "내 정보")
+            Text(text = stringResource(id = R.string.my_info))
         }
     }
 
     var backHandlingEnabled by remember { mutableStateOf(true) }
 
     BackHandler {
-        Toast.makeText(
-            context,
-            "뒤로가기를 한번 더 누르면 종료합니다.",
-            Toast.LENGTH_SHORT
-        ).show()
+        viewModel.showToast(R.string.double_tab_back)
         if (!backHandlingEnabled) {
             onFinish.invoke()
         }

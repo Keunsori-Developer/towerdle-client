@@ -22,6 +22,8 @@ okhttp = "5.0.0-alpha.5"
 playServicesAuth = "21.2.0"
 retrofit = "2.9.0"
 material3 = "1.2.0-rc01"
+appcompat = "1.7.0"
+material = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -56,6 +58,8 @@ logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", ver
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 
 [plugins]
@@ -63,4 +67,10 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroidCompiler" }
 googleService = { id = "com.google.gms.google-services", version = "4.3.10"}
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 
+[bundles]
+retrofit = ["retrofit","converter-gson"]
+okhttp3 = ["okhttp", "logging-interceptor"]
+navigation = ["androidx-navigation-compose", "androidx-navigation-fragment-ktx", "androidx-navigation-ui-ktx"]
+google-login = ["play-services-auth", "androidx-credentials", "androidx-credentials-play-services-auth", "googleid"]

@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">towerdle</string>
+    <string name="double_tab_back">"뒤로가기를 한번 더 누르면 종료합니다."</string>
     <string name="google_cloud_server_client_id">236075874307-3i9rfec1lujamn3dih8g36sv5fi4f1vt.apps.googleusercontent.com</string>
+    <string name="cant_login">해당 계정으로 로그인할 수 없습니다.</string>
+    <string name="google_login">Google Login</string>
+    <string name="guest_login">Guest</string>
+    <string name="game_start">게임시작</string>
+    <string name="challenge">챌린지</string>
+    <string name="my_info">내정보</string>
 </resources>

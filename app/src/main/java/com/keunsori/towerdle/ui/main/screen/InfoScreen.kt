@@ -1,4 +1,4 @@
-package com.keunsori.towerdle.presentation.main.screen
+package com.keunsori.towerdle.ui.main.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
-import com.keunsori.towerdle.presentation.main.MainViewModel
+import com.keunsori.towerdle.ui.main.MainViewModel
 
 @Composable
 fun InfoScreen(

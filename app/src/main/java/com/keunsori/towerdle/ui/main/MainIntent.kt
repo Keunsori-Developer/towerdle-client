@@ -1,9 +1,10 @@
-package com.keunsori.towerdle.presentation.main
+package com.keunsori.towerdle.ui.main
 
 import com.keunsori.towerdle.utils.Reducer
 import com.keunsori.towerdle.utils.UiEffect
 import com.keunsori.towerdle.utils.UiEvent
 import com.keunsori.towerdle.utils.UiState
+
 
 data class MainState(val data: Int, val boolean: Boolean, val list: ArrayList<Int>) : // 예시, 필요한 데이터로 변경 예정
     UiState {
@@ -18,7 +19,7 @@ sealed class MainEvent : UiEvent {
 }
 
 sealed class MainEffect : UiEffect {
-    data class ShowToast(val message: String) : MainEffect()
+    data class ShowToast(val message: Int) : MainEffect()
     data class MoveScreen(val route: String) : MainEffect()
 }
 

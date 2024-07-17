@@ -1,4 +1,4 @@
-package com.keunsori.towerdle.presentation.login.screen
+package com.keunsori.towerdle.ui.login.screen
 
 import android.util.Log
 import android.widget.Toast
@@ -17,12 +17,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.credentials.CredentialManager
 import androidx.navigation.NavHostController
-import com.keunsori.towerdle.presentation.login.LoginEffect
-import com.keunsori.towerdle.presentation.login.LoginViewModel
-import com.keunsori.towerdle.presentation.main.MainEffect
+import com.keunsori.towerdle.R
+import com.keunsori.towerdle.ui.login.LoginEffect
+import com.keunsori.towerdle.ui.login.LoginViewModel
+import com.keunsori.towerdle.ui.main.MainEffect
 import com.keunsori.towerdle.utils.googleLogin
 import com.keunsori.towerdle.utils.Navigation
 import kotlinx.coroutines.launch
@@ -45,12 +47,12 @@ fun LoginScreen(viewModel: LoginViewModel, credentialManager: CredentialManager)
                 })
             }
         }) {
-            Text(text = "Login")
+            Text(text = stringResource(id = R.string.google_login))
         }
         Button(onClick = {
-
+            viewModel.guestLogin()
         }) {
-            Text(text = "Guest")
+            Text(text = stringResource(id = R.string.guest_login))
         }
     }
 

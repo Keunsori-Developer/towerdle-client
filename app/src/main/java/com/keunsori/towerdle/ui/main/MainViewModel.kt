@@ -1,4 +1,4 @@
-package com.keunsori.towerdle.presentation.main
+package com.keunsori.towerdle.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,10 +40,17 @@ class MainViewModel @Inject constructor(
         sendEffect(MainEffect.MoveScreen(route))
     }
 
+    fun showToast(message: Int){
+        sendEffect(MainEffect.ShowToast(message))
+    }
+
     fun logout(googleLogout: suspend () -> Unit) {
         viewModelScope.launch {
+            // 로그아웃 (토큰 제거)
             userRepository.logout()
+            // 로그인 화면으로 이동
             moveToScreen(Navigation.Login.route)
+            // 구글 계정 앱 로그아웃
             googleLogout.invoke()
         }
     }

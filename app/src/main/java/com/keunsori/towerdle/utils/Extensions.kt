@@ -41,15 +41,12 @@ suspend fun googleLogin(credentialManager: CredentialManager, context: Context, 
         onSuccess.invoke(googleIdToken)
     } catch (e: GetCredentialCustomException) {
         Log.d(tag, e.toString())
-        Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
     } catch (e: GetCredentialCancellationException){
         // 계정 선택 중 취소를 누를 때
         Log.d(tag, e.toString())
-        Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
     } catch (e: NoCredentialException){
-        // 계정이 없을 때
+        // 계정이 없을 때 -> setFilterByAuthorizedAccounts(true) 일 때 발생
         Log.d(tag, e.toString())
-        Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
     }
 
 }

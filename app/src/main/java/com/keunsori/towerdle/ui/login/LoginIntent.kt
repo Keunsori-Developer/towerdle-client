@@ -1,4 +1,4 @@
-package com.keunsori.towerdle.presentation.login
+package com.keunsori.towerdle.ui.login
 
 import com.keunsori.towerdle.utils.Reducer
 import com.keunsori.towerdle.utils.UiEffect
@@ -17,7 +17,7 @@ sealed class LoginEvent : UiEvent {
 }
 
 sealed class LoginEffect : UiEffect {
-    data class ShowToast(val message: String) : LoginEffect()
+    data class ShowToast(val message: Int) : LoginEffect()
     data object MoveToMain : LoginEffect()
 }
 
