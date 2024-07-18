@@ -7,7 +7,7 @@ import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@ActivityScoped
+@Singleton
 class MainRepositoryImpl @Inject constructor(
     private val mainRemoteDataSource: MainRemoteDataSource,
     private val localDataSource: LocalDataSource

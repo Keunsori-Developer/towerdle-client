@@ -1,5 +1,6 @@
 package com.keunsori.presentation.ui.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.usecase.UserUseCase
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userUseCase: UserUseCase
+    private val userUseCase: UserUseCase,
 ) : ViewModel() {
     // ui 상태
     private val reducer = LoginReducer(LoginState.init())
@@ -39,11 +40,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun moveToMain(){
+    fun moveToMain() {
         sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
     }
 
-    fun showToast(message: Int){
+    fun showToast(message: Int) {
         sendEffect(LoginEffect.ShowToast(message))
     }
 
@@ -60,10 +61,13 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun tryLogin(clientId: String) {
+    fun tryLogin(googleIdToken: String) {
         viewModelScope.launch {
             sendEvent(LoginEvent.StartLoading)
-            val res = userUseCase.tryLogin(clientId) // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
+            Log.d("LoginViewModel", "tryLogin")
+
+            val res =
+                userUseCase.tryLogin(googleIdToken) // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
             delay(1000)
             sendEvent(LoginEvent.FinishLoading)
             if (res) { // 로그인 성공
@@ -71,10 +75,11 @@ class LoginViewModel @Inject constructor(
             } else { // 로그인 실패
                 sendEffect(LoginEffect.ShowToast(R.string.cant_login))
             }
+
         }
     }
 
-    fun guestLogin(){
+    fun guestLogin() {
         moveToMain()
     }
 }

@@ -8,12 +8,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.credentials.ClearCredentialStateRequest
 import com.keunsori.presentation.ui.main.MainViewModel
+import com.keunsori.presentation.utils.LocalCredentialManagerController
 
 @Composable
 fun InfoScreen(
     viewModel: MainViewModel,
 ) {
+    val credentialManager = LocalCredentialManagerController.current.credentialManager
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -21,7 +24,7 @@ fun InfoScreen(
     ) {
         Button(onClick = {
             viewModel.logout {
-                //credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                credentialManager!!.clearCredentialState(ClearCredentialStateRequest())
             }
         }) {
             Text(text = "로그아웃")

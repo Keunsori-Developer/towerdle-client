@@ -1,16 +1,13 @@
 package com.keunsori.data
 
+import android.util.Log
 import com.keunsori.data.datasource.LocalDataSource
-import com.keunsori.data.datasource.MainRemoteDataSource
 import com.keunsori.data.datasource.UserRemoteDataSource
-import com.keunsori.data.service.GoogleLoginService
-import com.keunsori.domain.repository.MainRepository
 import com.keunsori.domain.repository.UserRepository
-import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@ActivityScoped
+@Singleton
 class UserRepositoryImpl @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
     private val localDataSource: LocalDataSource,
@@ -19,11 +16,11 @@ class UserRepositoryImpl @Inject constructor(
         return userRemoteDataSource.example()
     }
 
-    override suspend fun tryLogin(clientId: String): Boolean {
-        val googleIdToken = userRemoteDataSource.tryLogin(clientId)
+    override suspend fun tryLogin(googleIdToken: String): Boolean {
         //TODO: 로그인 API 후 refreshToken 및 accessToken 저장
+        Log.d("UserRepositoryImpl","tryLogin")
         localDataSource.setRefreshToken("test_refresh")
-        return googleIdToken?.isNotEmpty() ?: false
+        return true
     }
 
     override suspend fun logout() {

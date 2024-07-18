@@ -16,6 +16,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import com.keunsori.presentation.R
 import com.keunsori.presentation.ui.login.LoginViewModel
+import com.keunsori.presentation.utils.LocalCredentialManagerController
+import com.keunsori.presentation.utils.googleLogin
 import kotlinx.coroutines.launch
 
 @Composable
@@ -23,6 +25,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val state = viewModel.uiState.collectAsState().value
+    val credentialManager = LocalCredentialManagerController.current.credentialManager
 
     Column(
         Modifier.fillMaxSize(),
@@ -30,9 +33,11 @@ fun LoginScreen(viewModel: LoginViewModel) {
         verticalArrangement = Arrangement.Center
     ) {
         Button(onClick = {
-
-            viewModel.tryLogin(context.getString(R.string.google_cloud_server_client_id))
-
+            coroutineScope.launch {
+                googleLogin(credentialManager = credentialManager!!,context = context, onSuccess = {
+                    viewModel.tryLogin(it)
+                })
+            }
         }) {
             Text(text = stringResource(id = R.string.google_login))
         }

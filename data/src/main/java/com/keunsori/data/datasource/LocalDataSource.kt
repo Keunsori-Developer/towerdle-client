@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@ActivityScoped
+@Singleton
 class LocalDataSource @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {

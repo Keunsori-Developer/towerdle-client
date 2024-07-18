@@ -3,7 +3,7 @@ package com.keunsori.domain.repository
 interface UserRepository {
     suspend fun test(test: String): String
 
-    suspend fun tryLogin(clientId: String): Boolean
+    suspend fun tryLogin(googleIdToken: String): Boolean
 
     suspend fun logout()
 

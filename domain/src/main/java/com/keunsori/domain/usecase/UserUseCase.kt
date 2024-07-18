@@ -38,10 +38,8 @@ class UserUseCase(private val userRepository: UserRepository) {
         }
     }
 
-    suspend fun tryLogin(clientId: String): Boolean{
-        //TODO: 로그인 API 후 refreshToken 및 accessToken 저장
-        userRepository.setRefreshToken("test_refresh")
-        return userRepository.tryLogin(clientId = clientId)
+    suspend fun tryLogin(googleIdToken: String): Boolean{
+        return userRepository.tryLogin(googleIdToken = googleIdToken)
     }
 
     suspend fun logout(){

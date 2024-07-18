@@ -1,7 +1,6 @@
 package com.keunsori.presentation
 
 import android.os.Bundle
-import android.view.Surface
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.CredentialManager
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -25,6 +26,8 @@ import com.keunsori.presentation.ui.main.screen.GameScreen
 import com.keunsori.presentation.ui.main.screen.InfoScreen
 import com.keunsori.presentation.ui.main.screen.MainScreen
 import com.keunsori.presentation.ui.theme.TowerdleTheme
+import com.keunsori.presentation.utils.LocalCredentialManagerController
+import com.keunsori.presentation.utils.MyCredentialManagerController
 import com.keunsori.presentation.utils.Navigation
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,6 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val loginViewModel: LoginViewModel by viewModels()
+    private val credentialManager = CredentialManager.create(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +49,7 @@ class MainActivity : ComponentActivity() {
                     Navigation(
                         viewModel = viewModel,
                         loginViewModel = loginViewModel,
+                        credentialManager = credentialManager,
                         onFinish = {
                             finish()
                         }
@@ -59,7 +64,8 @@ class MainActivity : ComponentActivity() {
 fun Navigation(
     viewModel: MainViewModel,
     loginViewModel: LoginViewModel,
-    onFinish: () -> Unit
+    credentialManager: CredentialManager,
+    onFinish: () -> Unit,
 ) {
     val navHostController = rememberNavController()
     val context = LocalContext.current
@@ -105,28 +111,34 @@ fun Navigation(
         }
     }
 
-    NavHost(
-        navController = navHostController,
-        startDestination = Navigation.Login.route
+    CompositionLocalProvider(
+        LocalCredentialManagerController provides MyCredentialManagerController(
+            credentialManager
+        )
     ) {
-        composable(route = Navigation.Login.route) {
-            LoginScreen(
-                viewModel = loginViewModel,
-            )
-        }
+        NavHost(
+            navController = navHostController,
+            startDestination = Navigation.Login.route
+        ) {
+            composable(route = Navigation.Login.route) {
+                LoginScreen(
+                    viewModel = loginViewModel,
+                )
+            }
 
-        composable(route = Navigation.Main.route) {
-            MainScreen(viewModel = viewModel, onFinish = onFinish)
-        }
+            composable(route = Navigation.Main.route) {
+                MainScreen(viewModel = viewModel, onFinish = onFinish)
+            }
 
-        composable(route = Navigation.Game.route) {
-            GameScreen(viewModel = viewModel)
-        }
+            composable(route = Navigation.Game.route) {
+                GameScreen(viewModel = viewModel)
+            }
 
-        composable(route = Navigation.Info.route) {
-            InfoScreen(
-                viewModel = viewModel,
-            )
+            composable(route = Navigation.Info.route) {
+                InfoScreen(
+                    viewModel = viewModel,
+                )
+            }
         }
     }
 }
