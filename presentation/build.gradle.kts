@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
@@ -8,20 +8,14 @@ plugins {
 }
 
 android {
-    namespace = "com.keunsori.towerdle"
+    namespace = "com.keunsori.presentation"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.keunsori.towerdle"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -46,17 +40,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
 }
 
 dependencies {
-    implementation(project(":presentation"))
     implementation(project(":domain"))
-    implementation(project(":data"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -74,21 +61,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // google login
-    implementation(libs.bundles.google.login)
-
     // life cycle
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     // Navigation
     implementation (libs.bundles.navigation)
-
-    // retrofit
-    implementation(libs.bundles.retrofit)
-
-    // okhttp3
-    implementation(libs.bundles.okhttp3)
 
     // hilt
     implementation(libs.hilt.android)
@@ -98,6 +76,4 @@ dependencies {
     // coroutine
     implementation(libs.kotlinx.coroutines.android)
 
-    // datastore
-    implementation (libs.androidx.datastore.preferences)
 }

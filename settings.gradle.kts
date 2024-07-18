@@ -21,3 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "towerdle"
 include(":app")
+include(":presentation")
+include(":domain")
+include(":data")

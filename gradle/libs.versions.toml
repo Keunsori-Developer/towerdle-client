@@ -24,6 +24,7 @@ retrofit = "2.9.0"
 material3 = "1.2.0-rc01"
 appcompat = "1.7.0"
 material = "1.12.0"
+jetbrainsKotlinJvm = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -68,6 +69,7 @@ jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "k
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroidCompiler" }
 googleService = { id = "com.google.gms.google-services", version = "4.3.10"}
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 [bundles]
 retrofit = ["retrofit","converter-gson"]
