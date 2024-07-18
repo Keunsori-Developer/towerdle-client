@@ -71,22 +71,21 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // google login
+    implementation(libs.bundles.google.login)
+
     // life cycle
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     // Navigation
-    implementation (libs.androidx.navigation.compose)
-    implementation (libs.androidx.navigation.fragment.ktx)
-    implementation (libs.androidx.navigation.ui.ktx)
+    implementation (libs.bundles.navigation)
 
     // retrofit
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+    implementation(libs.bundles.retrofit)
 
     // okhttp3
-    implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
+    implementation(libs.bundles.okhttp3)
 
     // hilt
     implementation(libs.hilt.android)

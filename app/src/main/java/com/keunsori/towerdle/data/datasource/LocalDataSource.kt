@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,22 +15,35 @@ class LocalDataSource @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) {
     companion object {
-        val TEST_KEY = stringPreferencesKey("TEST_KEY")
+        val REFRESH_TOKEN_KEY = stringPreferencesKey("REFRESH_TOKEN_KEY")
     }
 
-    private val testFlow: Flow<String?> = dataStore.data.map {
-        it[TEST_KEY]
+    private val refreshToken: Flow<String?> = dataStore.data.map {
+        it[REFRESH_TOKEN_KEY]
     }
 
-    suspend fun setTest(
+    private var _accessToken: String = ""
+    val accessToken: String
+        get() = _accessToken
+
+    suspend fun setRefreshToken(
         test: String,
     ) {
         dataStore.edit {
-            it[TEST_KEY] = test
+            it[REFRESH_TOKEN_KEY] = test
         }
     }
 
-    fun getTest(): Flow<String?> {
-        return testFlow
+    suspend fun getRefreshToken(): String {
+        return refreshToken.first()?:""
+    }
+
+    fun setAccessToken(accessToken: String){
+        _accessToken = accessToken
+    }
+
+    suspend fun deleteToken(){
+        setRefreshToken("")
+        setAccessToken("")
     }
 }
