@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.keunsori.towerdle.utils.Navigation
-import com.keunsori.towerdle.presentation.main.MainEffect
-import com.keunsori.towerdle.presentation.main.MainViewModel
+import com.keunsori.towerdle.presentation.main.intent.MainEffect
+import com.keunsori.towerdle.presentation.main.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(viewModel: MainViewModel, navHostController: NavHostController) {

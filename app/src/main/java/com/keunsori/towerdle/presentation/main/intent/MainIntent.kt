@@ -1,4 +1,4 @@
-package com.keunsori.towerdle.presentation.main
+package com.keunsori.towerdle.presentation.main.intent
 
 import com.keunsori.towerdle.utils.Reducer
 import com.keunsori.towerdle.utils.UiEffect
