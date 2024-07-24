@@ -7,7 +7,7 @@ class InGameRepository @Inject constructor(
 
 ) {
     suspend fun requestQuizWord(): String {
-        return ""
+        return "" /*TODO*/
     }
 
     fun checkAnswer(input: CharArray, answer: CharArray): QuizInputResult {
@@ -21,13 +21,11 @@ class InGameRepository @Inject constructor(
             if (inputSize <= i) break
             elements[i] = when {
                 input[i] == answer[i] -> QuizInputResult.Element(
-                    input[i],
-                    QuizInputResult.Type.MATCHED
+                    input[i], QuizInputResult.Type.MATCHED
                 )
 
                 answer.contains(input[i]) -> QuizInputResult.Element(
-                    input[i],
-                    QuizInputResult.Type.WRONG_SPOT
+                    input[i], QuizInputResult.Type.WRONG_SPOT
                 )
 
                 else -> QuizInputResult.Element(input[i], QuizInputResult.Type.NOT_EXIST)

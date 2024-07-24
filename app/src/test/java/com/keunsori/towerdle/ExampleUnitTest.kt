@@ -1,6 +1,6 @@
 package com.keunsori.towerdle
 
-import com.keunsori.towerdle.data.handler.InGameLogicHandler
+import com.keunsori.towerdle.data.handler.StringToCharArrayParser
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -13,8 +13,7 @@ class ExampleUnitTest {
 
     @Test
     fun parsingWord_isCorrect() {
-        val handler = InGameLogicHandler()
-        val actual = handler.parseStringWordToArray("안녕")
+        val actual = StringToCharArrayParser("안녕")
         val expected = charArrayOf('ㅇ', 'ㅏ','ㄴ','ㄴ','ㅕ','ㅇ')
 
         assertTrue(actual.contentEquals(expected))

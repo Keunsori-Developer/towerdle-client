@@ -1,7 +1,6 @@
 package com.keunsori.towerdle.presentation.main.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.keunsori.towerdle.data.handler.InGameLogicHandler
+import com.keunsori.towerdle.data.handler.StringToCharArrayParser
 import com.keunsori.towerdle.data.repository.InGameRepository
 import com.keunsori.towerdle.domain.entity.QuizInputResult
 import com.keunsori.towerdle.presentation.main.viewmodel.MainViewModel
@@ -30,8 +29,7 @@ fun GameScreen(viewModel: MainViewModel, navHostController: NavHostController) {
     // TODO: 수정
 
     val inGameRepository = InGameRepository()
-    val handler = InGameLogicHandler()
-    val answer = handler.parseStringWordToArray("분홍")
+    val answer = StringToCharArrayParser("분홍")
     var text by remember { mutableStateOf("") }
     Column(modifier = Modifier
         .fillMaxSize()
@@ -39,7 +37,7 @@ fun GameScreen(viewModel: MainViewModel, navHostController: NavHostController) {
         TextField(value = text, onValueChange = { value -> text = value })
         Trial(
             quizInputResult = inGameRepository.checkAnswer(
-                handler.parseStringWordToArray(text),
+                StringToCharArrayParser(text),
                 answer
             )
         )

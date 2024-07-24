@@ -1,6 +1,6 @@
 package com.keunsori.towerdle.data.handler
 
-class InGameLogicHandler {
+object StringToCharArrayParser {
     private val firstLetter = arrayOf(
         'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ',
         'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
@@ -15,12 +15,17 @@ class InGameLogicHandler {
         'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
     )
 
-    fun parseStringWordToArray(input: String): CharArray {
+    /**
+    String 형태의 한글 문자열을 초성, 중성, 종성으로 구분하여 CharArray로 만든다.
+     */
+    operator fun invoke(input: String): CharArray {
         val list = mutableListOf<Char>()
         val length = input.length
 
         for (i in 0 until length) {
-            val ad = String.format("0x%04X", input[i].code)
+            val ad = String.format("0x%04X", input[i].code) // hex 값으로 변환
+
+            // 한글이 가지는 유니코드 값의 범위는 AC00부터 D7A3까지
             if (ad < "0xAC00" || ad > "0xD7A3") {
                 return list.toCharArray()
             }
