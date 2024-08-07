@@ -1,4 +1,4 @@
-package com.keunsori.presentation.ui.login.screen
+package com.keunsori.presentation.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import com.keunsori.presentation.R
-import com.keunsori.presentation.ui.login.LoginViewModel
+import com.keunsori.presentation.viewmodel.LoginViewModel
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.googleLogin
 import kotlinx.coroutines.launch

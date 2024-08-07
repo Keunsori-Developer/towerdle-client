@@ -1,9 +1,12 @@
-package com.keunsori.presentation.ui.main
+package com.keunsori.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.keunsori.domain.usecase.MainUseCase
 import com.keunsori.domain.usecase.UserUseCase
+import com.keunsori.presentation.intent.MainEffect
+import com.keunsori.presentation.intent.MainEvent
+import com.keunsori.presentation.intent.MainReducer
+import com.keunsori.presentation.intent.MainState
 import com.keunsori.presentation.utils.Navigation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -13,7 +16,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val mainUseCase: MainUseCase,
     private val userUseCase: UserUseCase
 ): ViewModel() {
     // ui 상태

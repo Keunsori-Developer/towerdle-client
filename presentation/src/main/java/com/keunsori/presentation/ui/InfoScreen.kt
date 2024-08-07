@@ -1,4 +1,4 @@
-package com.keunsori.presentation.ui.main.screen
+package com.keunsori.presentation.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.credentials.ClearCredentialStateRequest
-import com.keunsori.presentation.ui.main.MainViewModel
+import com.keunsori.presentation.viewmodel.MainViewModel
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 
 @Composable

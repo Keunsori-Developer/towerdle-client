@@ -1,10 +1,14 @@
-package com.keunsori.presentation.ui.login
+package com.keunsori.presentation.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.usecase.UserUseCase
 import com.keunsori.presentation.R
+import com.keunsori.presentation.intent.LoginEffect
+import com.keunsori.presentation.intent.LoginEvent
+import com.keunsori.presentation.intent.LoginReducer
+import com.keunsori.presentation.intent.LoginState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay

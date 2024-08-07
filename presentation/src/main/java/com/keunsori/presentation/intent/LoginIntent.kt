@@ -1,4 +1,4 @@
-package com.keunsori.presentation.ui.login
+package com.keunsori.presentation.intent
 
 import com.keunsori.presentation.utils.Reducer
 import com.keunsori.presentation.utils.UiEffect

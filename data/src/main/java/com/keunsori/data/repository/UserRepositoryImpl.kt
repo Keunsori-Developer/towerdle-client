@@ -1,4 +1,4 @@
-package com.keunsori.data
+package com.keunsori.data.repository
 
 import android.util.Log
 import com.keunsori.data.datasource.LocalDataSource
