@@ -19,6 +19,7 @@ class LocalDataSource @Inject constructor(
         val REFRESH_TOKEN_KEY = stringPreferencesKey("REFRESH_TOKEN_KEY")
     }
 
+    // 지속적으로 사용하기에 data store에 저장
     private val refreshToken: Flow<String?> = dataStore.data.map {
         it[REFRESH_TOKEN_KEY]
     }

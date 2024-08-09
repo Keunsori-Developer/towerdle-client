@@ -3,8 +3,8 @@ package com.keunsori.towerdle.module
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.keunsori.data.MainRepositoryImpl
-import com.keunsori.data.UserRepositoryImpl
+import com.keunsori.data.repository.MainRepositoryImpl
+import com.keunsori.data.repository.UserRepositoryImpl
 import com.keunsori.domain.repository.MainRepository
 import com.keunsori.domain.repository.UserRepository
 import com.keunsori.domain.usecase.MainUseCase

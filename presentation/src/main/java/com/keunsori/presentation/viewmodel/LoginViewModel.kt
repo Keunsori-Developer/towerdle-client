@@ -3,6 +3,7 @@ package com.keunsori.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.keunsori.domain.entity.ApiResult
 import com.keunsori.domain.usecase.UserUseCase
 import com.keunsori.presentation.R
 import com.keunsori.presentation.intent.LoginEffect
@@ -49,18 +50,20 @@ class LoginViewModel @Inject constructor(
     }
 
     fun showToast(message: Int) {
-        sendEffect(LoginEffect.ShowToast(message))
+        sendEffect(LoginEffect.ShowToastToResource(message))
     }
 
+    /**
+     * 자동로그인
+     * refresh token 검증 -> 토큰이 있는지 + 유효한지 -> true 반환 시 메인 화면 이동 및 access token 저장
+     */
     private fun tryAutoLogin() {
         viewModelScope.launch {
-            if (userUseCase.verifyRefreshToken()) { // refresh token 검증 -> 토큰이 있는지 + 유효한지 -> true 반환 시 메인 화면 이동 및 access token 저장
+            if (userUseCase.verifyRefreshToken()) {
                 sendEvent(LoginEvent.StartLoading)
                 delay(1000)
                 sendEvent(LoginEvent.FinishLoading)
                 moveToMain()
-            } else {
-                // TODO: refresh token 만료
             }
         }
     }
@@ -69,17 +72,19 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             sendEvent(LoginEvent.StartLoading)
             Log.d("LoginViewModel", "tryLogin")
-
             val res =
                 userUseCase.tryLogin(googleIdToken) // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
-            delay(1000)
             sendEvent(LoginEvent.FinishLoading)
-            if (res) { // 로그인 성공
-                moveToMain() // 메인 화면 이동
-            } else { // 로그인 실패
-                sendEffect(LoginEffect.ShowToast(R.string.cant_login))
-            }
+            when (res) {
+                is ApiResult.Success -> {
+                    moveToMain() // 메인 화면 이동
+                }
 
+                is ApiResult.Fail -> {
+                    // TODO: api errorBody의 message를 그대로 반환하므로 서버에서 메시지를 사용자 친화적으로 수정하거나 앱 내의 string resource를 활용
+                    sendEffect(LoginEffect.ShowToast(res.exception.message.toString()))
+                }
+            }
         }
     }
 

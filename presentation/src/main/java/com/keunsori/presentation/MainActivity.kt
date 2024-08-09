@@ -74,6 +74,10 @@ fun Navigation(
     LaunchedEffect(key1 = Unit) {
         loginViewModel.effectFlow.collect { effect ->
             when (effect) {
+                is LoginEffect.ShowToastToResource -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+
                 is LoginEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }

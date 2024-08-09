@@ -1,8 +1,12 @@
 package com.keunsori.data.repository
 
 import android.util.Log
+import com.keunsori.data.data.request.OauthRequest
+import com.keunsori.data.data.request.RefreshRequest
 import com.keunsori.data.datasource.LocalDataSource
 import com.keunsori.data.datasource.UserRemoteDataSource
+import com.keunsori.domain.entity.LoginResult
+import com.keunsori.domain.entity.ApiResult
 import com.keunsori.domain.repository.UserRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,19 +16,44 @@ class UserRepositoryImpl @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
     private val localDataSource: LocalDataSource,
 ) : UserRepository {
-    override suspend fun test(test: String): String {
-        return userRemoteDataSource.example()
+    override suspend fun tryLogin(googleIdToken: String): ApiResult<LoginResult> {
+        return try {
+            val res =
+                userRemoteDataSource.googleLogin(oauthRequest = OauthRequest(jwt = googleIdToken))
+
+            localDataSource.setAccessToken(accessToken = res.accessToken)
+            localDataSource.setRefreshToken(refreshToken = res.refreshToken)
+            ApiResult.Success(
+                data = LoginResult(
+                    accessToken = res.accessToken, refreshToken = res.refreshToken
+                )
+            )
+        } catch (e: Exception) {
+            ApiResult.Fail(
+                exception = e
+            )
+        }
     }
 
-    override suspend fun tryLogin(googleIdToken: String): Boolean {
-        //TODO: 로그인 API 후 refreshToken 및 accessToken 저장
-        Log.d("UserRepositoryImpl","tryLogin")
-        localDataSource.setRefreshToken("test_refresh")
-        return true
-    }
-
-    override suspend fun logout() {
-        localDataSource.deleteToken()
+    override suspend fun refreshAccessToken(): Boolean {
+        val refreshToken = localDataSource.getRefreshToken()
+        return try {
+            if (refreshToken.isNotEmpty()) {
+                val res =
+                    userRemoteDataSource.refreshAccessToken(
+                        refreshRequest = RefreshRequest(
+                            refreshToken = refreshToken
+                        )
+                    )
+                localDataSource.setAccessToken(accessToken = res.accessToken)
+                localDataSource.setRefreshToken(refreshToken = res.refreshToken)
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 
     override suspend fun getRefreshToken(): String {
@@ -37,5 +66,9 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun setAccessToken(accessToken: String) {
         localDataSource.setAccessToken(accessToken = accessToken)
+    }
+
+    override suspend fun logout() {
+        localDataSource.deleteToken()
     }
 }

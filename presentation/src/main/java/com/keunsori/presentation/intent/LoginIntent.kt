@@ -17,7 +17,10 @@ sealed class LoginEvent : UiEvent {
 }
 
 sealed class LoginEffect : UiEffect {
-    data class ShowToast(val message: Int) : LoginEffect()
+    data class ShowToastToResource(val message: Int) : LoginEffect()
+
+    data class ShowToast(val message: String) : LoginEffect()
+
     data object MoveToMain : LoginEffect()
 }
 
