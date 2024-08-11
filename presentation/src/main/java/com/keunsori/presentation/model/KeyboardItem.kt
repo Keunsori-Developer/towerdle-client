@@ -1,11 +1,14 @@
 package com.keunsori.presentation.model
 
-data class KeyboardItem(val type: KeyboardItemType) {
+import androidx.compose.ui.graphics.Color
 
+
+sealed interface KeyboardItem {
+    data class Letter(val letter: Char, val matchType: LetterMatchType) : KeyboardItem
+    data object Enter : KeyboardItem
+    data object Backspace : KeyboardItem
 }
 
-sealed interface KeyboardItemType {
-    data class Letter(val letter: Char) : KeyboardItemType
-    data object Enter : KeyboardItemType
-    data object Backspace : KeyboardItemType
+enum class LetterMatchType(val color: Color) {
+    MATCHED(Color.Green), WRONG_SPOT(Color.Yellow), NOT_EXIST(Color.DarkGray), NONE(Color.Gray)
 }
