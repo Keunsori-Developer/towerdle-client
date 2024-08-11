@@ -35,6 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val loginViewModel: LoginViewModel by viewModels()
+    private val inGameViewModel: InGameViewModel by viewModels()
     private val credentialManager = CredentialManager.create(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Navigation(
                         viewModel = viewModel,
+                        inGameViewModel = inGameViewModel,
                         loginViewModel = loginViewModel,
                         credentialManager = credentialManager,
                         onFinish = {
@@ -63,6 +65,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Navigation(
     viewModel: MainViewModel,
+    inGameViewModel: InGameViewModel,
     loginViewModel: LoginViewModel,
     credentialManager: CredentialManager,
     onFinish: () -> Unit,
@@ -98,9 +101,9 @@ fun Navigation(
                 }
 
                 is MainEffect.MoveScreen -> {
-                    when(effect.route){
+                    when (effect.route) {
                         Navigation.Login.route -> { // 로그인 페이지로 돌아갈 시 스택을 남기지 않음
-                            navHostController.navigate(effect.route){
+                            navHostController.navigate(effect.route) {
                                 popUpTo(effect.route) {
                                     inclusive = true
                                 }
@@ -122,7 +125,7 @@ fun Navigation(
     ) {
         NavHost(
             navController = navHostController,
-            startDestination = Navigation.Login.route
+            startDestination = Navigation.Game.route
         ) {
             composable(route = Navigation.Login.route) {
                 LoginScreen(
@@ -135,7 +138,7 @@ fun Navigation(
             }
 
             composable(route = Navigation.Game.route) {
-                InGameScreen(viewModel = viewModel)
+                InGameScreen(inGameViewModel = inGameViewModel)
             }
 
             composable(route = Navigation.Info.route) {
