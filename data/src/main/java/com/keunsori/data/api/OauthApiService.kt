@@ -7,7 +7,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-interface OauthApiService {
+interface AuthApiService {
     @POST("/auth/login/app/google")
     fun googleLogin(@Body oauthRequest: OauthRequest): Call<OauthResponse>
 
