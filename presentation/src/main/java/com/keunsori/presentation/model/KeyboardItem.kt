@@ -6,6 +6,7 @@ sealed interface KeyboardItem {
     data class Letter(val letter: Char, val matchType: LetterMatchType) : KeyboardItem
     data object Enter : KeyboardItem
     data object Backspace : KeyboardItem
+    data object Empty : KeyboardItem
 }
 
 enum class LetterMatchType(val color: Color) {

@@ -15,6 +15,18 @@ class ParseStringToCharArrayUseCase {
         'ㅄ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
     )
 
+    val separatedMiddleLetter: (Char) -> CharArray = {
+        when (it) {
+            'ㅘ' -> charArrayOf('ㅗ', 'ㅏ')
+            'ㅙ' -> charArrayOf('ㅗ', 'ㅐ')
+            'ㅚ' -> charArrayOf('ㅗ', 'ㅣ')
+            'ㅝ' -> charArrayOf('ㅜ', 'ㅓ')
+            'ㅞ' -> charArrayOf('ㅜ', 'ㅔ')
+            'ㅟ' -> charArrayOf('ㅜ', 'ㅣ')
+            'ㅢ' -> charArrayOf('ㅡ', 'ㅣ')
+            else -> charArrayOf(it)
+        }
+    }
     /**
     String 형태의 한글 문자열을 초성, 중성, 종성으로 구분하여 CharArray로 만든다.
      */

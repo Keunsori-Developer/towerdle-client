@@ -54,6 +54,7 @@ fun Keyboard(
                                 item.matchType.color,
                                 onLetterClicked
                             )
+                            KeyboardItem.Empty -> Empty()
                         }
                     }
                 }
@@ -102,6 +103,14 @@ private fun Backspace(onClicked: () -> Unit) {
             modifier = Modifier.size(25.dp)
         )
     }
+}
+
+@Composable
+private fun Empty() {
+    Box(
+        modifier = Modifier
+            .size(30.dp, 50.dp).customBackgroundWithBorder()
+    )
 }
 
 @Composable

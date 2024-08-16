@@ -29,6 +29,10 @@ data class InGameUiState(
             lastLine.add(KeyboardItem.Backspace)
 
             val letters: List<List<KeyboardItem>> = listOf(
+                charArrayOf('ㅃ', 'ㅉ', 'ㄸ', 'ㄲ', 'ㅆ', ' ', ' ', ' ', 'ㅒ', 'ㅖ').map {
+                    if (it.isWhitespace()) KeyboardItem.Empty
+                    else KeyboardItem.Letter(it, LetterMatchType.NONE)
+                },
                 charArrayOf('ㅂ', 'ㅈ', 'ㄷ', 'ㄱ', 'ㅅ', 'ㅛ', 'ㅕ', 'ㅑ', 'ㅐ', 'ㅔ').map {
                     KeyboardItem.Letter(it, LetterMatchType.NONE)
                 },
