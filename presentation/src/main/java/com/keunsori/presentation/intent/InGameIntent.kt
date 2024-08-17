@@ -12,12 +12,23 @@ sealed interface InGameEvent : UiEvent {
     data object ClickBackspaceButton : InGameEvent
 }
 
-
+/**
+ * 인게임 화면에 표시될 정보
+ *
+ * @property quizSize 퀴즈 사이즈 (몇 개의 자모로 구성된 단어인지)
+ * @property currentTrialCount 현재 도전한 횟수 (0부터 시작)
+ * @property maxTrialSize 최대로 도전 가능한 횟수
+ * @property userInputsHistory 사용자가 그동안 입력한 정답 정보를 담은 리스트
+ * @property currentUserInput 사용자가 현재 입력 중인 정답 정보
+ * @property keyboardItems 키보드에 표시될 요소 (2차원 리스트)
+ * @property isGameFinished 게임 종료 여부
+ */
 data class InGameUiState(
     val quizSize: Int,
     val currentTrialCount: Int,
     val maxTrialSize: Int,
-    val userInputs: List<UserInput>,
+    val userInputsHistory: List<UserInput>,
+    val currentUserInput: UserInput,
     val keyboardItems: List<List<KeyboardItem>>,
     val isGameFinished: Boolean
 ) : UiState {
@@ -45,7 +56,7 @@ data class InGameUiState(
                 ).map { KeyboardItem.Letter(it, LetterMatchType.NONE) },
                 lastLine
             )
-            return InGameUiState(6, 0, 6, emptyList(), letters, false)
+            return InGameUiState(6, 0, 6, emptyList(), UserInput(emptyList()), letters, false)
         }
     }
 }

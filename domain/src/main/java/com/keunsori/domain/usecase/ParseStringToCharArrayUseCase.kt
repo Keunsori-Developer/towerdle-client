@@ -27,7 +27,7 @@ class ParseStringToCharArrayUseCase {
             else -> charArrayOf(it)
         }
     }
-    
+
     /**
     String 형태의 한글 문자열을 초성, 중성, 종성으로 구분하여 CharArray로 만든다.
      */

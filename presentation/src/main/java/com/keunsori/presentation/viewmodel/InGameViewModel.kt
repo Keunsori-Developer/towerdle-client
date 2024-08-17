@@ -3,6 +3,7 @@ package com.keunsori.presentation.viewmodel
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.keunsori.domain.usecase.CheckAnswerUseCase
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
 import com.keunsori.presentation.model.UserInput
@@ -15,8 +16,11 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class InGameViewModel @Inject constructor() : ViewModel() {
+class InGameViewModel @Inject constructor(private val checkAnswerUseCase: CheckAnswerUseCase) :
+    ViewModel() {
     private val event = Channel<InGameEvent>()
+
+    private val answer = charArrayOf('ㅂ', 'ㅜ', 'ㄴ', 'ㅎ', 'ㅗ', 'ㅇ') // TODO: 나중에 수정
 
     val uiState = event.receiveAsFlow()
         .runningFold(InGameUiState.init(), ::reduceState)
@@ -28,26 +32,41 @@ class InGameViewModel @Inject constructor() : ViewModel() {
 
     private fun reduceState(currentState: InGameUiState, event: InGameEvent): InGameUiState {
         return when (event) {
-            InGameEvent.ClickBackspaceButton -> TODO()
-            InGameEvent.ClickEnterButton -> TODO()
-            is InGameEvent.SelectLetter -> {
-                val newElement = UserInput.Element(event.letter, Color.White)
-
-                val list = currentState.userInputs.toMutableList()
-                var currentInput: UserInput
-
-                if (list.isEmpty()) {
-                    currentInput = UserInput(listOf(newElement))
-                    list.add(currentInput)
-                } else {
-                    val element = list.last().elements.toMutableList().also { it.add(newElement) }
-                    currentInput = UserInput(element)
-                    list[currentState.currentTrialCount] = currentInput
-                }
-
-                currentState.copy(userInputs = list)
-            }
+            InGameEvent.ClickBackspaceButton -> currentState.handleClickBackspaceButton()
+            InGameEvent.ClickEnterButton -> currentState.handleClickEnterButton(answer)
+            is InGameEvent.SelectLetter -> currentState.handleClickLetter(event.letter)
         }
+    }
+
+    private fun InGameUiState.handleClickBackspaceButton(): InGameUiState {
+        val newList = userInputsHistory[currentTrialCount].elements.toMutableList()
+        newList.removeLast()
+
+        val newUserInputs = userInputsHistory
+        return this.copy()
+    }
+
+    private fun InGameUiState.handleClickEnterButton(answer: CharArray): InGameUiState {
+        val newUserInputs = userInputsHistory.toMutableList()
+        val answerResult =
+            checkAnswerUseCase(currentUserInput.elements.map { it.letter }.toCharArray(), answer)
+        
+        newUserInputs.add(currentUserInput)
+        return this.copy(
+            currentTrialCount = currentTrialCount + 1,
+            userInputsHistory = newUserInputs,
+            currentUserInput = UserInput.empty
+        )
+    }
+
+    private fun InGameUiState.handleClickLetter(clickedLetter: Char): InGameUiState {
+        val newElement = UserInput.Element(clickedLetter)
+
+        val newElements = currentUserInput.elements.toMutableList()
+        newElements.add(newElement)
+        val newInput = currentUserInput.copy(elements = newElements)
+
+        return this.copy(currentUserInput = newInput)
     }
 
 }
