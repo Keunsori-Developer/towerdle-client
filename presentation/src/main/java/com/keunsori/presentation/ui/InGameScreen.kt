@@ -2,16 +2,13 @@ package com.keunsori.presentation.ui
 
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.ui.ingame.Keyboard
 import com.keunsori.presentation.ui.ingame.UserInputScreen
@@ -28,7 +25,8 @@ fun InGameScreen(inGameViewModel: InGameViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserInputScreen(
-            userInputs = uiState.value.userInputs,
+            userInputHistory = uiState.value.userInputsHistory,
+            currentUserInput = uiState.value.currentUserInput,
             maxTrialSize = uiState.value.maxTrialSize,
             quizSize = uiState.value.maxTrialSize
         )
