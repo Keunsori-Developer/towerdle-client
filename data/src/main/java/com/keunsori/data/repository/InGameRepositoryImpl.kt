@@ -3,7 +3,8 @@ package com.keunsori.data.repository
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.repository.InGameRepository
 
-class InGameRepositoryImpl : InGameRepository {
+
+internal class InGameRepositoryImpl : InGameRepository {
     /**
      * 출제할 단어를 가져옵니다.
      */
