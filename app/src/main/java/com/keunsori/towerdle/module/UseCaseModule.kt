@@ -5,8 +5,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.keunsori.data.repository.MainRepositoryImpl
 import com.keunsori.data.repository.UserRepositoryImpl
+import com.keunsori.domain.repository.InGameRepository
 import com.keunsori.domain.repository.MainRepository
 import com.keunsori.domain.repository.UserRepository
+import com.keunsori.domain.usecase.CheckAnswerUseCase
 import com.keunsori.domain.usecase.MainUseCase
 import com.keunsori.domain.usecase.UserUseCase
 import com.keunsori.towerdle.App.Companion.dataStore
@@ -31,5 +33,10 @@ object UseCaseModule {
     @Provides
     fun provideUserUseCase(userRepository: UserRepositoryImpl): UserUseCase {
         return UserUseCase(userRepository)
+    }
+
+    @Provides
+    fun provideCheckAnswerUseCase(inGameRepository: InGameRepository): CheckAnswerUseCase {
+        return CheckAnswerUseCase(inGameRepository)
     }
 }
