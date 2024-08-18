@@ -5,25 +5,41 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.usecase.CheckAnswerUseCase
+import com.keunsori.domain.usecase.GetQuizWordUseCase
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
 import com.keunsori.presentation.model.KeyboardItem
 import com.keunsori.presentation.model.LetterMatchType
 import com.keunsori.presentation.model.UserInput
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class InGameViewModel @Inject constructor(private val checkAnswerUseCase: CheckAnswerUseCase) :
+class InGameViewModel @Inject constructor(
+    private val getQuizWordUseCase: GetQuizWordUseCase,
+    private val checkAnswerUseCase: CheckAnswerUseCase
+) :
     ViewModel() {
     private val event = Channel<InGameEvent>()
 
-    private val answer = charArrayOf('ㅂ', 'ㅜ', 'ㄴ', 'ㅎ', 'ㅗ', 'ㅇ') // TODO: 나중에 수정
+    private lateinit var answer: CharArray
+
+    init {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                answer = getQuizWordUseCase()
+                println(answer)
+            }
+        }
+    }
 
     val uiState = event.receiveAsFlow()
         .runningFold(InGameUiState.init(), ::reduceState)

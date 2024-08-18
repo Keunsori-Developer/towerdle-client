@@ -10,7 +10,8 @@ class MainRemoteDataSource @Inject constructor(
     private val apiService: ApiService
 ) {
     fun example(): String{
-        return "main"
+        val res = apiService.getQuizWord().execute()
+        return res.body()?.value ?: "분홍"
     }
 }
 

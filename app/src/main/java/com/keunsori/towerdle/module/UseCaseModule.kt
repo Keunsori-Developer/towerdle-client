@@ -8,6 +8,7 @@ import com.keunsori.data.repository.UserRepositoryImpl
 import com.keunsori.domain.repository.MainRepository
 import com.keunsori.domain.repository.UserRepository
 import com.keunsori.domain.usecase.CheckAnswerUseCase
+import com.keunsori.domain.usecase.GetQuizWordUseCase
 import com.keunsori.domain.usecase.MainUseCase
 import com.keunsori.domain.usecase.UserUseCase
 import com.keunsori.towerdle.App.Companion.dataStore
@@ -38,5 +39,10 @@ object UseCaseModule {
     @Provides
     fun provideCheckAnswerUseCase(inGameRepository: InGameRepository): CheckAnswerUseCase {
         return CheckAnswerUseCase(inGameRepository)
+    }
+
+    @Provides
+    fun provideGetQuizWordUseCase(inGameRepository: InGameRepository): GetQuizWordUseCase {
+        return GetQuizWordUseCase(inGameRepository)
     }
 }
