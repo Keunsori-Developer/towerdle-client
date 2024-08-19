@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.entity.ApiResult
 import com.keunsori.domain.usecase.UserUseCase
-import com.keunsori.presentation.R
 import com.keunsori.presentation.intent.LoginEffect
 import com.keunsori.presentation.intent.LoginEvent
 import com.keunsori.presentation.intent.LoginReducer
@@ -30,7 +29,14 @@ class LoginViewModel @Inject constructor(
     val effectFlow = effectChannel.receiveAsFlow()
 
     init {
-        tryAutoLogin()
+        viewModelScope.launch {
+            userUseCase.invoke {
+                sendEvent(LoginEvent.StartLoading)
+                delay(1000)
+                sendEvent(LoginEvent.FinishLoading)
+                moveToMain()
+            }
+        }
     }
 
     // UI 변경
@@ -51,21 +57,6 @@ class LoginViewModel @Inject constructor(
 
     fun showToast(message: Int) {
         sendEffect(LoginEffect.ShowToastToResource(message))
-    }
-
-    /**
-     * 자동로그인
-     * refresh token 검증 -> 토큰이 있는지 + 유효한지 -> true 반환 시 메인 화면 이동 및 access token 저장
-     */
-    private fun tryAutoLogin() {
-        viewModelScope.launch {
-            if (userUseCase.verifyRefreshToken()) {
-                sendEvent(LoginEvent.StartLoading)
-                delay(1000)
-                sendEvent(LoginEvent.FinishLoading)
-                moveToMain()
-            }
-        }
     }
 
     fun tryLogin(googleIdToken: String) {

@@ -1,13 +1,13 @@
 package com.keunsori.data.repository
 
-import android.util.Log
 import com.keunsori.data.data.request.OauthRequest
 import com.keunsori.data.data.request.RefreshRequest
 import com.keunsori.data.datasource.LocalDataSource
 import com.keunsori.data.datasource.UserRemoteDataSource
-import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.entity.ApiResult
+import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.repository.UserRepository
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,8 +35,12 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun initRefreshToken() {
+        localDataSource.initRefreshToken()
+    }
+
     override suspend fun refreshAccessToken(): Boolean {
-        val refreshToken = localDataSource.getRefreshToken()
+        val refreshToken = localDataSource.refreshToken
         return try {
             if (refreshToken.isNotEmpty()) {
                 val res =
@@ -57,7 +61,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getRefreshToken(): String {
-        return localDataSource.getRefreshToken()
+        return localDataSource.refreshToken
     }
 
     override suspend fun setRefreshToken(refreshToken: String) {

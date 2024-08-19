@@ -14,11 +14,10 @@ suspend inline fun <Res : BaseResponse> Call<Res>.getResponse() = suspendCorouti
     enqueue(object : Callback<Res> {
         override fun onResponse(call: Call<Res>, response: Response<Res>) {
             val res = response.body()
-
-            if (response.isSuccessful) {
+            if (response.isSuccessful && res != null) {
                 Log.d("HttpResponse", "success: ${response.code()} ${response.message()}")
                 Log.d("HttpResponse", "response: $res")
-                it.resumeWith(Result.success(res!!)) // respnose가 success일 때 body가 null이면 exception 발생하게 유도
+                it.resumeWith(Result.success(res))
             } else {
                 val stringToJson = JSONObject(response.errorBody()?.string()!!)
                 Log.d("HttpResponse", "fail: $stringToJson")

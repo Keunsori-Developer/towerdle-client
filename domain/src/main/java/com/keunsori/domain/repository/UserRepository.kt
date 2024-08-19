@@ -7,7 +7,7 @@ import com.keunsori.domain.entity.UserInfo
 interface UserRepository {
     suspend fun tryLogin(googleIdToken: String): ApiResult<LoginResult>
 
-    suspend fun getUserInfo(): UserInfo
+    suspend fun initRefreshToken()
 
     suspend fun refreshAccessToken(): Boolean
 
