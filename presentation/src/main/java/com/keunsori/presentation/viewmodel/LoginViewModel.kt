@@ -23,25 +23,39 @@ class LoginViewModel @Inject constructor(
     // ui 상태
     private val reducer = LoginReducer(LoginState.init())
     val uiState get() = reducer.uiState
-    // side effect 채널
 
+    // side effect 채널
     private val effectChannel = Channel<LoginEffect>(Channel.BUFFERED)
     val effectFlow = effectChannel.receiveAsFlow()
 
     init {
+        // refresh token 검증 후 성공 시 자동 로그인
         viewModelScope.launch {
             userUseCase.invoke {
                 sendEvent(LoginEvent.StartLoading)
                 delay(1000)
                 sendEvent(LoginEvent.FinishLoading)
-                moveToMain()
+                sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
             }
         }
     }
 
     // UI 변경
-    private fun sendEvent(event: LoginEvent) {
-        reducer.sendEvent(event)
+    fun sendEvent(event: LoginEvent) {
+        viewModelScope.launch {
+            when(event){
+                is LoginEvent.GoogleLogin -> {
+                    tryLogin(googleIdToken = event.idToken)
+                }
+                is LoginEvent.GuestLogin -> {
+                    userUseCase.setLoginType(isGuest = true)
+                    sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
+                }
+                else -> {
+                    sendEvent(event)
+                }
+            }
+        }
     }
 
     // Side Effect 처리
@@ -51,15 +65,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun moveToMain() {
-        sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
-    }
-
-    fun showToast(message: Int) {
-        sendEffect(LoginEffect.ShowToastToResource(message))
-    }
-
-    fun tryLogin(googleIdToken: String) {
+    private fun tryLogin(googleIdToken: String) {
         viewModelScope.launch {
             sendEvent(LoginEvent.StartLoading)
             Log.d("LoginViewModel", "tryLogin")
@@ -68,18 +74,15 @@ class LoginViewModel @Inject constructor(
             sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
-                    moveToMain() // 메인 화면 이동
+                    userUseCase.setLoginType(isGuest = false)
+                    sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
                 }
 
                 is ApiResult.Fail -> {
-                    // TODO: api errorBody의 message를 그대로 반환하므로 서버에서 메시지를 사용자 친화적으로 수정하거나 앱 내의 string resource를 활용
+                    // api errorBody의 message를 그대로 반환하므로 앱 내의 string resource를 활용하는 쪽으로 변경 고려
                     sendEffect(LoginEffect.ShowToast(res.exception.message.toString()))
                 }
             }
         }
-    }
-
-    fun guestLogin() {
-        moveToMain()
     }
 }

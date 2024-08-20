@@ -72,6 +72,10 @@ class UserRepositoryImpl @Inject constructor(
         localDataSource.setAccessToken(accessToken = accessToken)
     }
 
+    override fun setLoginType(isGuest: Boolean) {
+        localDataSource.setLoginType(isGuest = isGuest)
+    }
+
     override suspend fun logout() {
         localDataSource.deleteToken()
     }

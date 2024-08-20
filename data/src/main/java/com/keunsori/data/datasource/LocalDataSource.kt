@@ -32,6 +32,10 @@ class LocalDataSource @Inject constructor(
     val accessToken: String
         get() = _accessToken
 
+    private var _isGuest: Boolean = true
+    val isGuest: Boolean
+        get() = _isGuest
+
     suspend fun initRefreshToken() {
         _refreshToken = dataStore.data.catch { exception ->
             if (exception is IOException) {
@@ -59,6 +63,10 @@ class LocalDataSource @Inject constructor(
 
     fun setAccessToken(accessToken: String) {
         _accessToken = accessToken
+    }
+
+    fun setLoginType(isGuest: Boolean){
+        _isGuest = isGuest
     }
 
     suspend fun deleteToken() {

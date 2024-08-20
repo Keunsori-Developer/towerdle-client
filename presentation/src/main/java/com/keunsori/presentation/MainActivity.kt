@@ -70,7 +70,7 @@ fun Navigation(
     val navHostController = rememberNavController()
     val context = LocalContext.current
 
-    // Login side effect 처리
+    // GoogleLogin side effect 처리
     LaunchedEffect(key1 = Unit) {
         loginViewModel.effectFlow.collect { effect ->
             when (effect) {

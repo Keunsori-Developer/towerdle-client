@@ -26,7 +26,7 @@ class MainViewModel @Inject constructor(
     val effectFlow = effectChannel.receiveAsFlow()
 
     // UI 변경
-    private fun sendEvent(event: MainEvent) {
+    private suspend fun sendEvent(event: MainEvent) {
         reducer.sendEvent(event)
     }
 

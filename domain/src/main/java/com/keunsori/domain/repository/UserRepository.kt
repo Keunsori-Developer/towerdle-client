@@ -17,5 +17,7 @@ interface UserRepository {
 
     fun setAccessToken(accessToken: String)
 
+    fun setLoginType(isGuest: Boolean)
+
     suspend fun logout()
 }

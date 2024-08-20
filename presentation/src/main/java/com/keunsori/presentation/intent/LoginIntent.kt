@@ -12,6 +12,8 @@ data class LoginState(val loading: Boolean) : UiState {
 }
 
 sealed class LoginEvent : UiEvent {
+    data object GuestLogin: LoginEvent()
+    data class GoogleLogin(val idToken: String): LoginEvent()
     data object StartLoading: LoginEvent()
     data object FinishLoading: LoginEvent()
 }
@@ -25,14 +27,15 @@ sealed class LoginEffect : UiEffect {
 }
 
 class LoginReducer(state: LoginState) : Reducer<LoginState, LoginEvent>(state) {
-    override fun reduce(oldState: LoginState, event: LoginEvent) {
+    override suspend fun reduce(oldState: LoginState, event: LoginEvent) {
         when(event){
-            is LoginEvent.StartLoading -> {
+            LoginEvent.StartLoading -> {
                 setState(newState = oldState.copy(loading = true))
             }
-            is LoginEvent.FinishLoading -> {
+            LoginEvent.FinishLoading -> {
                 setState(newState = oldState.copy(loading = false))
             }
+            else -> {}
         }
     }
 }

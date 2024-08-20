@@ -22,6 +22,10 @@ class UserUseCase(private val userRepository: UserRepository) {
         return userRepository.tryLogin(googleIdToken = googleIdToken)
     }
 
+    fun setLoginType(isGuest: Boolean){
+        userRepository.setLoginType(isGuest = isGuest)
+    }
+
     suspend fun logout() {
         userRepository.logout()
     }
