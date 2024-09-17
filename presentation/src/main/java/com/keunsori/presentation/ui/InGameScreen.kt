@@ -8,9 +8,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
+import com.keunsori.presentation.R
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.ui.ingame.Keyboard
+import com.keunsori.presentation.ui.ingame.MenuBar
 import com.keunsori.presentation.ui.ingame.UserInputScreen
+import com.keunsori.presentation.utils.GifLoader
 import com.keunsori.presentation.viewmodel.InGameViewModel
 import kotlinx.coroutines.launch
 
@@ -23,6 +29,7 @@ fun InGameScreen(inGameViewModel: InGameViewModel) {
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        MenuBar(onBackClicked = { /*TODO*/ }, onHelpButtonClicked = { /*TODO*/ })
         UserInputScreen(
             userInputHistory = uiState.value.userInputsHistory,
             currentUserInput = uiState.value.currentUserInput,
