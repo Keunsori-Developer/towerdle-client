@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.keunsori.presentation.R
 import com.keunsori.presentation.model.UserInput
 
@@ -61,6 +63,7 @@ fun UserInputScreen(
 @Composable
 private fun UserTrialRow(input: UserInput?, trialOnGoing: Boolean, quizSize: Int) {
     Row(
+        modifier = Modifier.wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         for (i in 0..<quizSize) {
@@ -70,8 +73,7 @@ private fun UserTrialRow(input: UserInput?, trialOnGoing: Boolean, quizSize: Int
                 null
             }
             Box(
-                modifier = Modifier
-                    .size(55.dp),
+                modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -81,9 +83,8 @@ private fun UserTrialRow(input: UserInput?, trialOnGoing: Boolean, quizSize: Int
                         color = if (trialOnGoing) MaterialTheme.colorScheme.onPrimaryContainer
                         else element?.color ?: MaterialTheme.colorScheme.outline
                     ),
-                    modifier = Modifier.fillMaxSize()
                 )
-                Text(element?.run { letter.toString() } ?: "")
+                Text(element?.run { letter.toString() } ?: "", fontSize = 20.sp)
             }
         }
     }
