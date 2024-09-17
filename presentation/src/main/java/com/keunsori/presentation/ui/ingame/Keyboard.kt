@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.keunsori.presentation.R
 import com.keunsori.presentation.intent.InGameUiState
 import com.keunsori.presentation.model.KeyboardItem
-import com.keunsori.presentation.model.LetterMatchType
+import com.keunsori.presentation.ui.theme.surfaceVariantLight
 
 @Composable
 fun Keyboard(
@@ -35,13 +36,12 @@ fun Keyboard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.LightGray)
-            .padding(4.dp),
+            .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             for (items in keyboardItems) {
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -54,6 +54,7 @@ fun Keyboard(
                                 item.matchType.color,
                                 onLetterClicked
                             )
+
                             KeyboardItem.Empty -> Empty()
                         }
                     }
@@ -64,11 +65,11 @@ fun Keyboard(
 }
 
 @Composable
-private fun Letter(letter: Char, statusColor: Color, onClicked: (Char) -> Unit) {
+private fun Letter(letter: Char, statusColor: Color?, onClicked: (Char) -> Unit) {
     Box(
         modifier = Modifier
-            .size(30.dp, 50.dp)
-            .customBackgroundWithBorder(statusColor)
+            .size(30.dp, 40.dp)
+            .customBackground(statusColor)
             .clickable { onClicked(letter) },
         contentAlignment = Alignment.Center
     ) {
@@ -80,8 +81,8 @@ private fun Letter(letter: Char, statusColor: Color, onClicked: (Char) -> Unit) 
 private fun Enter(onClicked: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(50.dp, 50.dp)
-            .customBackgroundWithBorder()
+            .size(50.dp, 40.dp)
+            .customBackground()
             .clickable { onClicked() },
         contentAlignment = Alignment.Center
     ) {
@@ -93,7 +94,8 @@ private fun Enter(onClicked: () -> Unit) {
 private fun Backspace(onClicked: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(50.dp, 50.dp).customBackgroundWithBorder()
+            .size(50.dp, 40.dp)
+            .customBackground()
             .clickable { onClicked() },
         contentAlignment = Alignment.Center
     ) {
@@ -109,18 +111,19 @@ private fun Backspace(onClicked: () -> Unit) {
 private fun Empty() {
     Box(
         modifier = Modifier
-            .size(30.dp, 50.dp).customBackgroundWithBorder()
+            .size(30.dp, 40.dp)
+            .customBackground()
     )
 }
 
 @Composable
-private fun Modifier.customBackgroundWithBorder(color: Color = Color.Gray): Modifier {
-    return this.background(color, RoundedCornerShape(4.dp))
-        .border(width = 0.1.dp, color = Color.Black, shape = RoundedCornerShape(4.dp))
+private fun Modifier.customBackground(color: Color? = MaterialTheme.colorScheme.surfaceVariant): Modifier {
+    return this
+        .background(color ?: MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
 }
 
 @Preview
 @Composable
 fun Keyboard_Preview() {
-    Keyboard(keyboardItems = InGameUiState.init().keyboardItems, {}, {  },{})
+    Keyboard(keyboardItems = InGameUiState.init().keyboardItems, {}, { }, {})
 }

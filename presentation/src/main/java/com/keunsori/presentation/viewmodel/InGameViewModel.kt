@@ -1,6 +1,5 @@
 package com.keunsori.presentation.viewmodel
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.entity.QuizInputResult
@@ -11,6 +10,8 @@ import com.keunsori.presentation.intent.InGameUiState
 import com.keunsori.presentation.model.KeyboardItem
 import com.keunsori.presentation.model.LetterMatchType
 import com.keunsori.presentation.model.UserInput
+import com.keunsori.presentation.ui.theme.Color
+import com.keunsori.presentation.utils.GifLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -26,8 +27,9 @@ import javax.inject.Inject
 class InGameViewModel @Inject constructor(
     private val getQuizWordUseCase: GetQuizWordUseCase,
     private val checkAnswerUseCase: CheckAnswerUseCase
-) :
-    ViewModel() {
+) : ViewModel() {
+
+    @Inject lateinit var gifLoader: GifLoader
     private val event = Channel<InGameEvent>()
 
     private lateinit var answer: CharArray
@@ -36,7 +38,7 @@ class InGameViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 answer = getQuizWordUseCase()
-                println(answer)
+                println("answer: ${String(answer)}")
             }
         }
     }
@@ -73,9 +75,13 @@ class InGameViewModel @Inject constructor(
 
         val checkedUserInput = answerResult.list.map { e ->
             when (e.type) {
-                QuizInputResult.Type.MATCHED -> UserInput.Element(e.letter, Color.Green)
-                QuizInputResult.Type.WRONG_SPOT -> UserInput.Element(e.letter, Color.Yellow)
-                QuizInputResult.Type.NOT_EXIST -> UserInput.Element(e.letter, Color.Red)
+                QuizInputResult.Type.MATCHED -> UserInput.Element(e.letter, Color.ingameMatched)
+                QuizInputResult.Type.WRONG_SPOT -> UserInput.Element(
+                    e.letter,
+                    Color.ingameWrongSpot
+                )
+
+                QuizInputResult.Type.NOT_EXIST -> UserInput.Element(e.letter, Color.ingameNotExist)
             }
         }
         newUserInputs.add(UserInput(checkedUserInput))
