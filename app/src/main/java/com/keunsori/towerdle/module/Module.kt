@@ -22,40 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 object Module {
     @Provides
-    fun provideUrl(): String = "http://test"
-
-    @Provides
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.dataStore
     }
-
-    @Provides
-    fun provideOkHttpClient(): OkHttpClient {
-        val interceptor =
-            HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            } // API 로그 출력
-
-        return OkHttpClient.Builder()
-            .addNetworkInterceptor(interceptor)
-            .addInterceptor(Interceptor.invoke { chain ->
-                val builder = chain.request().newBuilder()
-                builder.addHeader(
-                    "Content-Type", "application/json; charset=utf-8"
-                )
-                chain.proceed(builder.build())
-            }).build()
-    }
-
-    @Provides
-    fun provideApiService(
-        url: String,
-        okHttpClient: OkHttpClient,
-    ): ApiService =
-        Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl(url)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
 }

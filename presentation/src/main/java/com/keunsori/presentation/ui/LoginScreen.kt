@@ -1,4 +1,4 @@
-package com.keunsori.presentation.ui.login.screen
+package com.keunsori.presentation.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import com.keunsori.presentation.R
-import com.keunsori.presentation.ui.login.LoginViewModel
+import com.keunsori.presentation.intent.LoginEvent
+import com.keunsori.presentation.viewmodel.LoginViewModel
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.googleLogin
 import kotlinx.coroutines.launch
@@ -35,14 +36,14 @@ fun LoginScreen(viewModel: LoginViewModel) {
         Button(onClick = {
             coroutineScope.launch {
                 googleLogin(credentialManager = credentialManager!!,context = context, onSuccess = {
-                    viewModel.tryLogin(it)
+                    viewModel.sendEvent(LoginEvent.GoogleLogin(idToken = it))
                 })
             }
         }) {
             Text(text = stringResource(id = R.string.google_login))
         }
         Button(onClick = {
-            viewModel.guestLogin()
+            viewModel.sendEvent(LoginEvent.GuestLogin)
         }) {
             Text(text = stringResource(id = R.string.guest_login))
         }

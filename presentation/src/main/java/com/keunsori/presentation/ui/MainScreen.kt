@@ -1,4 +1,4 @@
-package com.keunsori.presentation.ui.main.screen
+package com.keunsori.presentation.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.keunsori.presentation.R
-import com.keunsori.presentation.ui.main.MainViewModel
+import com.keunsori.presentation.viewmodel.MainViewModel
 import com.keunsori.presentation.utils.Navigation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

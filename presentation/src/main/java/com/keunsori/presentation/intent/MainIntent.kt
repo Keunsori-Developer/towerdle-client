@@ -1,4 +1,4 @@
-package com.keunsori.presentation.ui.main
+package com.keunsori.presentation.intent
 
 import com.keunsori.presentation.utils.Reducer
 import com.keunsori.presentation.utils.UiEffect
@@ -24,7 +24,7 @@ sealed class MainEffect : UiEffect {
 }
 
 class MainReducer(state: MainState) : Reducer<MainState, MainEvent>(state) {
-    override fun reduce(oldState: MainState, event: MainEvent) {
+    override suspend fun reduce(oldState: MainState, event: MainEvent) {
         when (event) {
             is MainEvent.Increase -> { // 예시, 삭제 예정
                 setState(

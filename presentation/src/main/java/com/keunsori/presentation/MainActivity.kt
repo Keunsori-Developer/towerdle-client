@@ -17,14 +17,14 @@ import androidx.credentials.CredentialManager
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.keunsori.presentation.ui.main.MainEffect
-import com.keunsori.presentation.ui.login.LoginEffect
-import com.keunsori.presentation.ui.login.LoginViewModel
-import com.keunsori.presentation.ui.login.screen.LoginScreen
-import com.keunsori.presentation.ui.main.MainViewModel
-import com.keunsori.presentation.ui.main.screen.GameScreen
-import com.keunsori.presentation.ui.main.screen.InfoScreen
-import com.keunsori.presentation.ui.main.screen.MainScreen
+import com.keunsori.presentation.intent.MainEffect
+import com.keunsori.presentation.intent.LoginEffect
+import com.keunsori.presentation.viewmodel.LoginViewModel
+import com.keunsori.presentation.ui.LoginScreen
+import com.keunsori.presentation.viewmodel.MainViewModel
+import com.keunsori.presentation.ui.InGameScreen
+import com.keunsori.presentation.ui.InfoScreen
+import com.keunsori.presentation.ui.MainScreen
 import com.keunsori.presentation.ui.theme.TowerdleTheme
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.MyCredentialManagerController
@@ -70,10 +70,14 @@ fun Navigation(
     val navHostController = rememberNavController()
     val context = LocalContext.current
 
-    // Login side effect 처리
+    // GoogleLogin side effect 처리
     LaunchedEffect(key1 = Unit) {
         loginViewModel.effectFlow.collect { effect ->
             when (effect) {
+                is LoginEffect.ShowToastToResource -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+
                 is LoginEffect.ShowToast -> {
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
@@ -131,7 +135,7 @@ fun Navigation(
             }
 
             composable(route = Navigation.Game.route) {
-                GameScreen(viewModel = viewModel)
+                InGameScreen(viewModel = viewModel)
             }
 
             composable(route = Navigation.Info.route) {
