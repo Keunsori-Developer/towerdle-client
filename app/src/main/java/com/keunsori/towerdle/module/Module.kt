@@ -22,9 +22,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 @InstallIn(SingletonComponent::class)
 object Module {
     @Provides
-    fun provideUrl(): String = "https://api.randommagic.xyz/"
-
-    @Provides
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.dataStore
     }

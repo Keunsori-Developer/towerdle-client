@@ -1,7 +1,6 @@
 package com.keunsori.data.repository
 
 
-import com.keunsori.data.api.ApiService
 import com.keunsori.data.datasource.MainRemoteDataSource
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.repository.InGameRepository
