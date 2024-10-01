@@ -127,7 +127,7 @@ fun Navigation(
     ) {
         NavHost(
             navController = navHostController,
-            startDestination = Navigation.Game.route
+            startDestination = Navigation.Login.route
         ) {
             composable(route = Navigation.Login.route) {
                 LoginScreen(

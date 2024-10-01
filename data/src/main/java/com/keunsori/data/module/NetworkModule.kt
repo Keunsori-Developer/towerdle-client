@@ -1,21 +1,17 @@
 package com.keunsori.data.module
 
 import android.util.Log
-import com.keunsori.data.api.ApiService
+import com.keunsori.data.api.MainApiService
 import com.keunsori.data.api.AuthApiService
 import com.keunsori.data.data.request.RefreshRequest
 import com.keunsori.data.datasource.LocalDataSource
-import com.keunsori.data.retrofit.getResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -125,12 +121,12 @@ object NetworkModule {
     @Provides
     fun provideMainApiService(
         @MainInterceptorOkHttpClient okHttpClient: OkHttpClient,
-    ): ApiService {
+    ): MainApiService {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ApiService::class.java)
+            .create(MainApiService::class.java)
     }
 }
