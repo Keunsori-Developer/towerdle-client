@@ -1,5 +1,5 @@
 package com.keunsori.data.dto
 
-data class GetQuizWordRequest(
+data class GetQuizWordResponse(
     val value: String
 )
