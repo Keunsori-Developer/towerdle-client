@@ -1,14 +1,16 @@
 package com.keunsori.data.repository
 
+import com.keunsori.data.datasource.MainRemoteDataSource
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.repository.InGameRepository
+import javax.inject.Inject
 
-class InGameRepositoryImpl : InGameRepository {
+internal class InGameRepositoryImpl @Inject constructor(private val remoteDataSource: MainRemoteDataSource) : InGameRepository {
     /**
      * 출제할 단어를 가져옵니다.
      */
     override suspend fun requestQuizWord(): String {
-        return "분홍" // TODO: 수정
+        return remoteDataSource.example()
     }
 
     /**
