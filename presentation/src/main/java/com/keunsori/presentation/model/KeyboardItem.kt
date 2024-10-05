@@ -1,6 +1,5 @@
 package com.keunsori.presentation.model
 
-
 import com.keunsori.presentation.ui.theme.Color
 
 sealed interface KeyboardItem {

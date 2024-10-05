@@ -1,6 +1,6 @@
 package com.keunsori.data.datasource
 
-import com.keunsori.data.api.ApiService
+import com.keunsori.data.api.MainApiService
 import com.keunsori.data.api.AuthApiService
 import com.keunsori.data.data.request.OauthRequest
 import com.keunsori.data.data.request.RefreshRequest
@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class UserRemoteDataSource @Inject constructor(
-    private val apiService: ApiService,
+    private val mainApiService: MainApiService,
     private val authApiService: AuthApiService
 ) {
     suspend fun googleLogin(oauthRequest: OauthRequest): OauthResponse {

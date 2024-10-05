@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 @Singleton
 class MainRemoteDataSource @Inject constructor(
-    private val apiService: ApiService
+    private val mainApiService: MainApiService
 ) {
     fun example(): String{
         val res = mainApiService.getQuizWord().execute()

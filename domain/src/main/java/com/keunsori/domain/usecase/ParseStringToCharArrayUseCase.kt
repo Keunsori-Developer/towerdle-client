@@ -49,10 +49,12 @@ class ParseStringToCharArrayUseCase {
             val h2 = (decimal % (21 * 28)) / 28
             val h3 = decimal % 28
 
+
             list.add(firstLetter[h1])
-            list.add(middleLetter[h2])
+            list.addAll(separatedMiddleLetter(middleLetter[h2]).toTypedArray())
             if (h3 != 0) list.add(lastLetter[h3])
         }
         return list.toCharArray()
     }
+
 }

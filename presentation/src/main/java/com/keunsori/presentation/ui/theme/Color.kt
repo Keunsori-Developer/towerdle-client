@@ -2,9 +2,6 @@ package com.keunsori.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
 
 val primaryLight = Color(0xFF425E91)
 val onPrimaryLight = Color(0xFFFFFFFF)

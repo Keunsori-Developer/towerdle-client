@@ -138,4 +138,5 @@ class InGameViewModel @Inject constructor(
 
         return this.copy(currentUserInput = newInput)
     }
+
 }

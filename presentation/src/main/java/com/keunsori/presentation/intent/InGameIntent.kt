@@ -1,6 +1,10 @@
 package com.keunsori.presentation.intent
 
+import com.keunsori.presentation.model.KeyboardItem
+import com.keunsori.presentation.model.LetterMatchType
+import com.keunsori.presentation.model.UserInput
 import com.keunsori.presentation.utils.UiEvent
+import com.keunsori.presentation.utils.UiState
 
 sealed interface InGameEvent : UiEvent {
     data class SelectLetter(val letter: Char) : InGameEvent
@@ -56,3 +60,4 @@ data class InGameUiState(
         }
     }
 }
+

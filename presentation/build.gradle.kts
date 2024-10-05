@@ -79,4 +79,7 @@ dependencies {
     // coroutine
     implementation(libs.kotlinx.coroutines.android)
 
+    implementation(libs.coil.gif)
+    implementation(libs.coil.compose)
+
 }

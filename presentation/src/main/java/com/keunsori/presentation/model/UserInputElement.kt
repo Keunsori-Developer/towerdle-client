@@ -1,6 +1,5 @@
 package com.keunsori.presentation.model
 
-
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 

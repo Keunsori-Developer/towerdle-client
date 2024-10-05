@@ -29,6 +29,7 @@ import com.keunsori.presentation.ui.theme.TowerdleTheme
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.MyCredentialManagerController
 import com.keunsori.presentation.utils.Navigation
+import com.keunsori.presentation.viewmodel.InGameViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -109,6 +110,7 @@ fun Navigation(
                                 }
                             }
                         }
+
                         else -> {
                             navHostController.navigate(effect.route)
                         }

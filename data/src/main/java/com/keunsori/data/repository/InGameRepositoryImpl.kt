@@ -1,10 +1,9 @@
 package com.keunsori.data.repository
 
-
 import com.keunsori.data.datasource.MainRemoteDataSource
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.repository.InGameRepository
-
+import javax.inject.Inject
 
 internal class InGameRepositoryImpl @Inject constructor(private val remoteDataSource: MainRemoteDataSource) : InGameRepository {
     /**
