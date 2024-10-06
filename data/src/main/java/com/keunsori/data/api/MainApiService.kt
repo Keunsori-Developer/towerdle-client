@@ -6,6 +6,6 @@ import retrofit2.http.GET
 
 
 interface MainApiService {
-    @GET("word?count=6&complexVowel=true&complexConsonant=false")
+    @GET("word?count=6&complexVowel=false&complexConsonant=false")
     fun getQuizWord(): Call<GetQuizWordResponse>
 }

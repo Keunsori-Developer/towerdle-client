@@ -32,13 +32,19 @@ class InGameViewModel @Inject constructor(
     @Inject lateinit var gifLoader: GifLoader
     private val event = Channel<InGameEvent>()
 
-    private lateinit var answer: CharArray
+    /**
+     * ex)
+     * first: 안녕
+     * second: ㅇㅏㄴㄴㅕㅇ
+     */
+    lateinit var answer: Pair<String, CharArray>
+        private set
 
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 answer = getQuizWordUseCase()
-                println("answer: ${String(answer)}")
+                println("answer: ${answer.first}")
             }
         }
     }
@@ -54,7 +60,7 @@ class InGameViewModel @Inject constructor(
     private fun reduceState(currentState: InGameUiState, event: InGameEvent): InGameUiState {
         return when (event) {
             InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
-            InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer)
+            InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer.second)
             is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
         }
     }
@@ -73,6 +79,7 @@ class InGameViewModel @Inject constructor(
         val answerResult =
             checkAnswerUseCase(currentUserInput.elements.map { it.letter }.toCharArray(), answer)
 
+        // 유저가 입력한 정답 체크
         val checkedUserInput = answerResult.list.map { e ->
             when (e.type) {
                 QuizInputResult.Type.MATCHED -> UserInput.Element(e.letter, Color.ingameMatched)
@@ -86,7 +93,7 @@ class InGameViewModel @Inject constructor(
         }
         newUserInputs.add(UserInput(checkedUserInput))
 
-        // TODO: 키보드 색상 변경
+        // 키보드 색상 변경
         val newKeyboardItems = keyboardItems.toMutableList()
 
         for (result in answerResult.list) {
@@ -118,12 +125,16 @@ class InGameViewModel @Inject constructor(
             }
         }
 
+        val isAnswer = answerResult.list.all { it.type == QuizInputResult.Type.MATCHED }
 
         return this.copy(
             currentTrialCount = currentTrialCount + 1,
             userInputsHistory = newUserInputs,
             currentUserInput = UserInput.empty,
-            keyboardItems = newKeyboardItems
+            keyboardItems = newKeyboardItems,
+            isGameFinished = currentTrialCount + 1 == this.maxTrialSize || isAnswer,
+            isCorrectAnswer = isAnswer
+
         )
     }
 

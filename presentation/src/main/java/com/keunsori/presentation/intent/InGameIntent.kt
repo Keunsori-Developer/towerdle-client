@@ -22,6 +22,7 @@ sealed interface InGameEvent : UiEvent {
  * @property currentUserInput 사용자가 현재 입력 중인 정답 정보
  * @property keyboardItems 키보드에 표시될 요소 (2차원 리스트)
  * @property isGameFinished 게임 종료 여부
+ * @property isCorrectAnswer 정답 맞췄는지 여부
  */
 data class InGameUiState(
     val quizSize: Int,
@@ -30,7 +31,8 @@ data class InGameUiState(
     val userInputsHistory: List<UserInput>,
     val currentUserInput: UserInput,
     val keyboardItems: List<List<KeyboardItem>>,
-    val isGameFinished: Boolean
+    val isGameFinished: Boolean,
+    val isCorrectAnswer: Boolean,
 ) : UiState {
     companion object {
         fun init(): InGameUiState {
@@ -56,7 +58,16 @@ data class InGameUiState(
                 ).map { KeyboardItem.Letter(it, LetterMatchType.NONE) },
                 lastLine
             )
-            return InGameUiState(6, 0, 6, emptyList(), UserInput(emptyList()), letters, false)
+            return InGameUiState(
+                6,
+                0,
+                6,
+                emptyList(),
+                UserInput(emptyList()),
+                letters,
+                isGameFinished = false,
+                isCorrectAnswer = false
+            )
         }
     }
 }
