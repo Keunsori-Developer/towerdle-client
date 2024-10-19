@@ -2,10 +2,11 @@ package com.keunsori.domain.repository
 
 import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.entity.ApiResult
-import com.keunsori.domain.entity.UserInfo
 
 interface UserRepository {
-    suspend fun tryLogin(googleIdToken: String): ApiResult<LoginResult>
+    suspend fun tryGoogleLogin(googleIdToken: String): ApiResult<LoginResult>
+
+    suspend fun tryGuestLogin(guestId: String): ApiResult<LoginResult>
 
     suspend fun initRefreshToken()
 
@@ -16,8 +17,6 @@ interface UserRepository {
     suspend fun setRefreshToken(refreshToken: String)
 
     fun setAccessToken(accessToken: String)
-
-    fun setLoginType(isGuest: Boolean)
 
     suspend fun logout()
 }

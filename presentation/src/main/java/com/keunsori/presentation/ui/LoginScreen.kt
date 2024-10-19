@@ -35,9 +35,12 @@ fun LoginScreen(viewModel: LoginViewModel) {
     ) {
         Button(onClick = {
             coroutineScope.launch {
-                googleLogin(credentialManager = credentialManager!!,context = context, onSuccess = {
-                    viewModel.sendEvent(LoginEvent.GoogleLogin(idToken = it))
-                })
+                googleLogin(
+                    credentialManager = credentialManager!!,
+                    context = context,
+                    onSuccess = {
+                        viewModel.sendEvent(LoginEvent.GoogleLogin(idToken = it))
+                    })
             }
         }) {
             Text(text = stringResource(id = R.string.google_login))

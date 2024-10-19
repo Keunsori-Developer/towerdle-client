@@ -65,10 +65,6 @@ class LocalDataSource @Inject constructor(
         _accessToken = accessToken
     }
 
-    fun setLoginType(isGuest: Boolean){
-        _isGuest = isGuest
-    }
-
     suspend fun deleteToken() {
         setRefreshToken("")
         setAccessToken("")
