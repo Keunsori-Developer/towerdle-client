@@ -25,12 +25,14 @@ import com.keunsori.presentation.viewmodel.MainViewModel
 import com.keunsori.presentation.ui.InGameScreen
 import com.keunsori.presentation.ui.InfoScreen
 import com.keunsori.presentation.ui.MainScreen
+import com.keunsori.presentation.ui.main.ChooseLevelScreen
 import com.keunsori.presentation.ui.theme.TowerdleTheme
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.MyCredentialManagerController
 import com.keunsori.presentation.utils.Navigation
 import com.keunsori.presentation.viewmodel.InGameViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.Serializable
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -112,6 +114,7 @@ fun Navigation(
                         }
 
                         else -> {
+                            navHostController.navigate(InGameRoute("asdf"))
                             navHostController.navigate(effect.route)
                         }
                     }
@@ -139,7 +142,11 @@ fun Navigation(
                 MainScreen(viewModel = viewModel, onFinish = onFinish)
             }
 
-            composable(route = Navigation.Game.route) {
+            composable(route = Navigation.Main_ChooseLevel.route) {
+                ChooseLevelScreen()
+            }
+
+            composable<InGameRoute> {
                 InGameScreen(inGameViewModel = inGameViewModel)
             }
 
@@ -151,3 +158,6 @@ fun Navigation(
         }
     }
 }
+
+@Serializable
+data class InGameRoute(val answer: String)
