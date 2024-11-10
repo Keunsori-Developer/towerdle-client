@@ -1,5 +1,6 @@
 package com.keunsori.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.entity.QuizInputResult
@@ -25,6 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InGameViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getQuizWordUseCase: GetQuizWordUseCase,
     private val checkAnswerUseCase: CheckAnswerUseCase
 ) : ViewModel() {
@@ -41,6 +43,8 @@ class InGameViewModel @Inject constructor(
         private set
 
     init {
+        val level = savedStateHandle.get<Int>("level")
+        println("level!!! $level")
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 answer = getQuizWordUseCase()
