@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("kotlin-android")
@@ -46,7 +45,6 @@ android {
 dependencies {
     implementation(project(":domain"))
 
-    implementation(libs.jetbrains.kotlinx.serialization)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

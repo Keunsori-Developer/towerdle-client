@@ -17,7 +17,7 @@ lifecycleRuntimeKtx = "2.8.3"
 activityCompose = "1.9.0"
 composeBom = "2023.08.00"
 loggingInterceptor = "5.0.0-alpha.5"
-navigationCompose = "2.8.1"
+navigationCompose = "2.7.7"
 okhttp = "5.0.0-alpha.5"
 playServicesAuth = "21.2.0"
 retrofit = "2.9.0"
@@ -28,7 +28,6 @@ jetbrainsKotlinJvm = "1.9.0"
 coil = "2.6.0"
 
 [libraries]
-jetbrains-kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.7.0" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
@@ -68,7 +67,6 @@ coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
 
 
 [plugins]
-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroidCompiler" }
