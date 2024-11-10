@@ -34,7 +34,7 @@ fun MainScreen(viewModel: MainViewModel, onFinish: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { viewModel.moveToScreen(Navigation.Game.route) }) {
+        Button(onClick = { viewModel.moveToScreen(Navigation.Main_ChooseLevel.route) }) {
             Text(text = stringResource(id = R.string.game_start))
         }
         Button(onClick = {  }) {

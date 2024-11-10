@@ -1,5 +1,6 @@
 package com.keunsori.presentation.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.entity.QuizInputResult
@@ -21,58 +22,82 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.ByteString.Companion.encodeUtf8
 import javax.inject.Inject
 
 @HiltViewModel
 class InGameViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getQuizWordUseCase: GetQuizWordUseCase,
     private val checkAnswerUseCase: CheckAnswerUseCase
 ) : ViewModel() {
 
-    @Inject lateinit var gifLoader: GifLoader
+    @Inject
+    lateinit var gifLoader: GifLoader
     private val event = Channel<InGameEvent>()
 
-    private lateinit var answer: CharArray
+    /**
+     * ex)
+     * first: 안녕
+     * second: ㅇㅏㄴㄴㅕㅇ
+     */
+    lateinit var answer: Pair<String, CharArray>
+        private set
 
     init {
+        val level = savedStateHandle.get<Int>("level") ?: 1
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                answer = getQuizWordUseCase()
-                println("answer: ${String(answer)}")
+                answer = getQuizWordUseCase(level)
+                println("answer: ${answer.first}")
+                sendEvent(InGameEvent.QuizLoaded(answer.second.size))
             }
         }
     }
 
     val uiState = event.receiveAsFlow()
-        .runningFold(InGameUiState.init(), ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), InGameUiState.init())
+        .runningFold(InGameUiState.Loading, ::reduceState)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), InGameUiState.Loading)
 
     suspend fun sendEvent(newEvent: InGameEvent) {
         event.send(newEvent)
     }
 
-    private fun reduceState(currentState: InGameUiState, event: InGameEvent): InGameUiState {
-        return when (event) {
-            InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
-            InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer)
-            is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
+    private fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
+        when (state) {
+            InGameUiState.Loading -> {
+                if (event is InGameEvent.QuizLoaded) return InGameUiState.Main.init(event.quizSize)
+            }
+
+            is InGameUiState.Main -> {
+                val currentState = state as? InGameUiState.Main ?: return state
+
+                return when (event) {
+                    InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
+                    InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer.second)
+                    is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
+                    else -> return currentState
+                }
+            }
         }
+        return state
     }
 
-    private fun InGameUiState.handleBackspaceButton(): InGameUiState {
+    private fun InGameUiState.Main.handleBackspaceButton(): InGameUiState.Main {
         val updatedUserInput = currentUserInput.copy(
             elements = currentUserInput.elements.toMutableList()
                 .also { e -> if (e.isNotEmpty()) e.removeLast() })
         return this.copy(currentUserInput = updatedUserInput)
     }
 
-    private fun InGameUiState.handleEnterButton(answer: CharArray): InGameUiState {
+    private fun InGameUiState.Main.handleEnterButton(answer: CharArray): InGameUiState.Main {
         if (currentUserInput.elements.size != quizSize) return this
 
         val newUserInputs = userInputsHistory.toMutableList()
         val answerResult =
             checkAnswerUseCase(currentUserInput.elements.map { it.letter }.toCharArray(), answer)
 
+        // 유저가 입력한 정답 체크
         val checkedUserInput = answerResult.list.map { e ->
             when (e.type) {
                 QuizInputResult.Type.MATCHED -> UserInput.Element(e.letter, Color.ingameMatched)
@@ -86,7 +111,7 @@ class InGameViewModel @Inject constructor(
         }
         newUserInputs.add(UserInput(checkedUserInput))
 
-        // TODO: 키보드 색상 변경
+        // 키보드 색상 변경
         val newKeyboardItems = keyboardItems.toMutableList()
 
         for (result in answerResult.list) {
@@ -118,16 +143,20 @@ class InGameViewModel @Inject constructor(
             }
         }
 
+        val isAnswer = answerResult.list.all { it.type == QuizInputResult.Type.MATCHED }
 
         return this.copy(
             currentTrialCount = currentTrialCount + 1,
             userInputsHistory = newUserInputs,
             currentUserInput = UserInput.empty,
-            keyboardItems = newKeyboardItems
+            keyboardItems = newKeyboardItems,
+            isGameFinished = currentTrialCount + 1 == this.maxTrialSize || isAnswer,
+            isCorrectAnswer = isAnswer
+
         )
     }
 
-    private fun InGameUiState.handleClickedLetter(clickedLetter: Char): InGameUiState {
+    private fun InGameUiState.Main.handleClickedLetter(clickedLetter: Char): InGameUiState.Main {
         val newElement = UserInput.Element(clickedLetter)
 
         val newElements = currentUserInput.elements.toMutableList()
