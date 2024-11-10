@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.keunsori.presentation.R
 import com.keunsori.presentation.intent.InGameEvent
+import com.keunsori.presentation.intent.InGameUiState
 import com.keunsori.presentation.ui.ingame.Keyboard
 import com.keunsori.presentation.ui.ingame.MenuBar
 import com.keunsori.presentation.ui.ingame.ResultScreen
@@ -23,46 +25,78 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun InGameScreen(inGameViewModel: InGameViewModel) {
-    val coroutineScope = rememberCoroutineScope()
     val uiState = inGameViewModel.uiState.collectAsState()
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        MenuBar(onBackClicked = { /*TODO*/ }, onHelpButtonClicked = { /*TODO*/ })
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
+            contentAlignment = Alignment.Center
         ) {
-            MenuBar(onBackClicked = { /*TODO*/ }, onHelpButtonClicked = { /*TODO*/ })
-            UserInputScreen(
-                userInputHistory = uiState.value.userInputsHistory,
-                currentUserInput = uiState.value.currentUserInput,
-                maxTrialSize = uiState.value.maxTrialSize,
-                quizSize = uiState.value.maxTrialSize
-            )
-            Keyboard(
-                keyboardItems = uiState.value.keyboardItems,
-                onLetterClicked = {
-                    coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.SelectLetter(it)) }
-                },
-                onEnterClicked = {
-                    coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.ClickEnterButton) }
-                },
-                onBackspaceClicked = {
-                    coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.ClickBackspaceButton) }
-                })
+            when (uiState.value) {
+                InGameUiState.Loading -> Loading()
+                is InGameUiState.Main -> Main(
+                    uiState = uiState.value as InGameUiState.Main,
+                    inGameViewModel = inGameViewModel
+                )
+            }
         }
-        if (uiState.value.isGameFinished) {
-            ResultScreen(
-                isCorrectAnswer = uiState.value.isCorrectAnswer,
-                realAnswer = inGameViewModel.answer.first,
-                congratImage = {
-                    AsyncImage(
-                        model = R.drawable.congrat,
-                        contentDescription = null,
-                        imageLoader = inGameViewModel.gifLoader.gifEnabledLoader,
-                        modifier = Modifier.size(250.dp)
-                    )
-                }
-            )
-        }
+    }
+
+
+}
+
+@Composable
+private fun Loading() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+
+}
+
+@Composable
+private fun Main(uiState: InGameUiState.Main, inGameViewModel: InGameViewModel) {
+    val coroutineScope = rememberCoroutineScope()
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        UserInputScreen(
+            userInputHistory = uiState.userInputsHistory,
+            currentUserInput = uiState.currentUserInput,
+            maxTrialSize = uiState.maxTrialSize,
+            quizSize = uiState.quizSize
+        )
+        Keyboard(
+            keyboardItems = uiState.keyboardItems,
+            onLetterClicked = {
+                coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.SelectLetter(it)) }
+            },
+            onEnterClicked = {
+                coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.ClickEnterButton) }
+            },
+            onBackspaceClicked = {
+                coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.ClickBackspaceButton) }
+            })
+    }
+    if (uiState.isGameFinished) {
+        ResultScreen(
+            isCorrectAnswer = uiState.isCorrectAnswer,
+            realAnswer = inGameViewModel.answer.first,
+            congratImage = {
+                AsyncImage(
+                    model = R.drawable.congrat,
+                    contentDescription = null,
+                    imageLoader = inGameViewModel.gifLoader.gifEnabledLoader,
+                    modifier = Modifier.size(250.dp)
+                )
+            }
+        )
     }
 }

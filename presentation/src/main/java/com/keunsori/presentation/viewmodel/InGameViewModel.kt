@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.ByteString.Companion.encodeUtf8
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +32,8 @@ class InGameViewModel @Inject constructor(
     private val checkAnswerUseCase: CheckAnswerUseCase
 ) : ViewModel() {
 
-    @Inject lateinit var gifLoader: GifLoader
+    @Inject
+    lateinit var gifLoader: GifLoader
     private val event = Channel<InGameEvent>()
 
     /**
@@ -43,40 +45,52 @@ class InGameViewModel @Inject constructor(
         private set
 
     init {
-        val level = savedStateHandle.get<Int>("level")
-        println("level!!! $level")
+        val level = savedStateHandle.get<Int>("level") ?: 1
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                answer = getQuizWordUseCase()
+                answer = getQuizWordUseCase(level)
                 println("answer: ${answer.first}")
+                sendEvent(InGameEvent.QuizLoaded(answer.second.size))
             }
         }
     }
 
     val uiState = event.receiveAsFlow()
-        .runningFold(InGameUiState.init(), ::reduceState)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), InGameUiState.init())
+        .runningFold(InGameUiState.Loading, ::reduceState)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), InGameUiState.Loading)
 
     suspend fun sendEvent(newEvent: InGameEvent) {
         event.send(newEvent)
     }
 
-    private fun reduceState(currentState: InGameUiState, event: InGameEvent): InGameUiState {
-        return when (event) {
-            InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
-            InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer.second)
-            is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
+    private fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
+        when (state) {
+            InGameUiState.Loading -> {
+                if (event is InGameEvent.QuizLoaded) return InGameUiState.Main.init(event.quizSize)
+            }
+
+            is InGameUiState.Main -> {
+                val currentState = state as? InGameUiState.Main ?: return state
+
+                return when (event) {
+                    InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
+                    InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer.second)
+                    is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
+                    else -> return currentState
+                }
+            }
         }
+        return state
     }
 
-    private fun InGameUiState.handleBackspaceButton(): InGameUiState {
+    private fun InGameUiState.Main.handleBackspaceButton(): InGameUiState.Main {
         val updatedUserInput = currentUserInput.copy(
             elements = currentUserInput.elements.toMutableList()
                 .also { e -> if (e.isNotEmpty()) e.removeLast() })
         return this.copy(currentUserInput = updatedUserInput)
     }
 
-    private fun InGameUiState.handleEnterButton(answer: CharArray): InGameUiState {
+    private fun InGameUiState.Main.handleEnterButton(answer: CharArray): InGameUiState.Main {
         if (currentUserInput.elements.size != quizSize) return this
 
         val newUserInputs = userInputsHistory.toMutableList()
@@ -142,7 +156,7 @@ class InGameViewModel @Inject constructor(
         )
     }
 
-    private fun InGameUiState.handleClickedLetter(clickedLetter: Char): InGameUiState {
+    private fun InGameUiState.Main.handleClickedLetter(clickedLetter: Char): InGameUiState.Main {
         val newElement = UserInput.Element(clickedLetter)
 
         val newElements = currentUserInput.elements.toMutableList()

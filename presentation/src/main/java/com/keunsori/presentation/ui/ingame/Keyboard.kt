@@ -146,6 +146,6 @@ private fun Modifier.customBackground(color: Color? = MaterialTheme.colorScheme.
 @Composable
 private fun Keyboard_Preview() {
     Box(modifier = Modifier.width(800.dp)) {
-        Keyboard(keyboardItems = InGameUiState.init().keyboardItems, {}, { }, {})
+        Keyboard(keyboardItems = InGameUiState.Main.init(6).keyboardItems, {}, { }, {})
     }
 }
