@@ -20,7 +20,7 @@ sealed class MainEvent : UiEvent {
 
 sealed class MainEffect : UiEffect {
     data class ShowToast(val message: Int) : MainEffect()
-    data class MoveScreen(val route: String) : MainEffect()
+    data class MoveScreen(val route: String, val popUp: Boolean = false) : MainEffect()
 }
 
 class MainReducer(state: MainState) : Reducer<MainState, MainEvent>(state) {

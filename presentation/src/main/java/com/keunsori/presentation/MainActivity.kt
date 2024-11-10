@@ -14,9 +14,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.credentials.CredentialManager
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavOptions
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.keunsori.presentation.intent.MainEffect
 import com.keunsori.presentation.intent.LoginEffect
 import com.keunsori.presentation.viewmodel.LoginViewModel
@@ -25,6 +29,7 @@ import com.keunsori.presentation.viewmodel.MainViewModel
 import com.keunsori.presentation.ui.InGameScreen
 import com.keunsori.presentation.ui.InfoScreen
 import com.keunsori.presentation.ui.MainScreen
+import com.keunsori.presentation.ui.main.ChooseLevelScreen
 import com.keunsori.presentation.ui.theme.TowerdleTheme
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.MyCredentialManagerController
@@ -36,7 +41,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
     private val loginViewModel: LoginViewModel by viewModels()
-    private val inGameViewModel: InGameViewModel by viewModels()
     private val credentialManager = CredentialManager.create(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +54,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Navigation(
                         viewModel = viewModel,
-                        inGameViewModel = inGameViewModel,
                         loginViewModel = loginViewModel,
                         credentialManager = credentialManager,
                         onFinish = {
@@ -66,7 +69,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Navigation(
     viewModel: MainViewModel,
-    inGameViewModel: InGameViewModel,
     loginViewModel: LoginViewModel,
     credentialManager: CredentialManager,
     onFinish: () -> Unit,
@@ -102,18 +104,8 @@ fun Navigation(
                 }
 
                 is MainEffect.MoveScreen -> {
-                    when (effect.route) {
-                        Navigation.Login.route -> { // 로그인 페이지로 돌아갈 시 스택을 남기지 않음
-                            navHostController.navigate(effect.route) {
-                                popUpTo(effect.route) {
-                                    inclusive = true
-                                }
-                            }
-                        }
-
-                        else -> {
-                            navHostController.navigate(effect.route)
-                        }
+                    navHostController.navigate(effect.route) {
+                        if (effect.popUp) popUpTo(effect.route) { inclusive = true }
                     }
                 }
             }
@@ -139,8 +131,40 @@ fun Navigation(
                 MainScreen(viewModel = viewModel, onFinish = onFinish)
             }
 
-            composable(route = Navigation.Game.route) {
-                InGameScreen(inGameViewModel = inGameViewModel)
+            composable(route = Navigation.Main_ChooseLevel.route) {
+                ChooseLevelScreen(navigateToHome = {
+                    navHostController.popBackStack()
+                }, navigateToInGame = { level ->
+                    navHostController.navigate(
+                        Navigation.Game.route.replace(
+                            "{level}",
+                            level.toString()
+                        )
+                    ) {
+                        popUpTo(Navigation.Main_ChooseLevel.route) {
+                            inclusive = true
+                        }
+                    }
+                })
+            }
+
+            composable(
+                route = Navigation.Game.route, arguments = listOf(
+                    navArgument("level") {
+                        type = NavType.IntType
+                    },
+                )
+            ) { navBackStackEntry ->
+                /* Extracting the level from the route */
+                val level = navBackStackEntry.arguments?.getInt("level")
+                val inGameViewModel = hiltViewModel<InGameViewModel>()
+                InGameScreen(
+                    inGameViewModel = inGameViewModel,
+                    navigateToMain = {
+                        navHostController.navigate(Navigation.Main.route) {
+                            popUpTo(Navigation.Main.route) { inclusive = true }
+                        }
+                    })
             }
 
             composable(route = Navigation.Info.route) {
