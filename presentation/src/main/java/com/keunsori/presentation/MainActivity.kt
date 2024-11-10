@@ -134,8 +134,13 @@ fun Navigation(
             composable(route = Navigation.Main_ChooseLevel.route) {
                 ChooseLevelScreen(navigateToHome = {
                     navHostController.popBackStack()
-                }, navigateToInGame = { level->
-                    navHostController.navigate(Navigation.Game.route.replace("{level}", level.toString())) {
+                }, navigateToInGame = { level ->
+                    navHostController.navigate(
+                        Navigation.Game.route.replace(
+                            "{level}",
+                            level.toString()
+                        )
+                    ) {
                         popUpTo(Navigation.Main_ChooseLevel.route) {
                             inclusive = true
                         }
@@ -143,16 +148,23 @@ fun Navigation(
                 })
             }
 
-            composable(route = Navigation.Game.route, arguments = listOf(
-                navArgument("level") {
-                    type = NavType.IntType
-                },
-            )
+            composable(
+                route = Navigation.Game.route, arguments = listOf(
+                    navArgument("level") {
+                        type = NavType.IntType
+                    },
+                )
             ) { navBackStackEntry ->
                 /* Extracting the level from the route */
                 val level = navBackStackEntry.arguments?.getInt("level")
                 val inGameViewModel = hiltViewModel<InGameViewModel>()
-                InGameScreen(inGameViewModel = inGameViewModel)
+                InGameScreen(
+                    inGameViewModel = inGameViewModel,
+                    navigateToMain = {
+                        navHostController.navigate(Navigation.Main.route) {
+                            popUpTo(Navigation.Main.route) { inclusive = true }
+                        }
+                    })
             }
 
             composable(route = Navigation.Info.route) {

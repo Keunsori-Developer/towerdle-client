@@ -24,25 +24,44 @@ import com.keunsori.presentation.viewmodel.InGameViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun InGameScreen(inGameViewModel: InGameViewModel) {
+fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
     val uiState = inGameViewModel.uiState.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        MenuBar(onBackClicked = { /*TODO*/ }, onHelpButtonClicked = { /*TODO*/ })
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f),
-            contentAlignment = Alignment.Center
-        ) {
-            when (uiState.value) {
-                InGameUiState.Loading -> Loading()
-                is InGameUiState.Main -> Main(
-                    uiState = uiState.value as InGameUiState.Main,
-                    inGameViewModel = inGameViewModel
-                )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            MenuBar(onBackClicked = { /*TODO*/ }, onHelpButtonClicked = { /*TODO*/ })
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                when (uiState.value) {
+                    InGameUiState.Loading -> Loading()
+                    is InGameUiState.Main -> Main(
+                        uiState = uiState.value as InGameUiState.Main,
+                        inGameViewModel = inGameViewModel
+                    )
+                }
             }
+        }
+
+        val mainState = uiState.value as? InGameUiState.Main ?: return@Box
+        if (mainState.isGameFinished) {
+            ResultScreen(
+                isCorrectAnswer = mainState.isCorrectAnswer,
+                realAnswer = inGameViewModel.answer.first,
+                congratImage = {
+                    AsyncImage(
+                        model = R.drawable.congrat,
+                        contentDescription = null,
+                        imageLoader = inGameViewModel.gifLoader.gifEnabledLoader,
+                        modifier = Modifier.size(250.dp)
+                    )
+                },
+                onQuitButtonClicked = navigateToMain,
+                onRetryButtonClicked = {/*TODO*/ }
+            )
         }
     }
 
@@ -84,19 +103,5 @@ private fun Main(uiState: InGameUiState.Main, inGameViewModel: InGameViewModel) 
             onBackspaceClicked = {
                 coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.ClickBackspaceButton) }
             })
-    }
-    if (uiState.isGameFinished) {
-        ResultScreen(
-            isCorrectAnswer = uiState.isCorrectAnswer,
-            realAnswer = inGameViewModel.answer.first,
-            congratImage = {
-                AsyncImage(
-                    model = R.drawable.congrat,
-                    contentDescription = null,
-                    imageLoader = inGameViewModel.gifLoader.gifEnabledLoader,
-                    modifier = Modifier.size(250.dp)
-                )
-            }
-        )
     }
 }

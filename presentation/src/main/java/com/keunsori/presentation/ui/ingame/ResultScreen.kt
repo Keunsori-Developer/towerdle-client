@@ -31,7 +31,9 @@ import androidx.compose.ui.unit.sp
 fun ResultScreen(
     isCorrectAnswer: Boolean,
     realAnswer: String,
-    congratImage: @Composable () -> Unit
+    congratImage: @Composable () -> Unit,
+    onQuitButtonClicked: () -> Unit = {},
+    onRetryButtonClicked: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -69,7 +71,8 @@ fun ResultScreen(
                     "끝내기",
                     MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.weight(1f),
-                    onClick = {})
+                    onClick = onQuitButtonClicked
+                )
                 VerticalDivider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outline,
@@ -79,7 +82,8 @@ fun ResultScreen(
                     "한번 더 하기",
                     MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.weight(1f),
-                    onClick = {})
+                    onClick = onRetryButtonClicked
+                )
             }
         }
     }
@@ -100,11 +104,11 @@ private fun Button(text: String, color: Color, onClick: () -> Unit, modifier: Mo
 @Preview
 @Composable
 fun ResultScreen_Preview() {
-    ResultScreen(isCorrectAnswer = true, realAnswer = "안녕") {
+    ResultScreen(isCorrectAnswer = true, realAnswer = "안녕", {
         Box(
             modifier = Modifier
                 .size(30.dp)
                 .background(Color.Yellow)
         )
-    }
+    }, {}, {})
 }
