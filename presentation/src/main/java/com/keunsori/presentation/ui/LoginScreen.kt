@@ -1,5 +1,8 @@
 package com.keunsori.presentation.ui
 
+import android.annotation.SuppressLint
+import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -21,6 +25,7 @@ import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.googleLogin
 import kotlinx.coroutines.launch
 
+@SuppressLint("HardwareIds")
 @Composable
 fun LoginScreen(viewModel: LoginViewModel) {
     val context = LocalContext.current
@@ -28,12 +33,28 @@ fun LoginScreen(viewModel: LoginViewModel) {
     val state = viewModel.uiState.collectAsState().value
     val credentialManager = LocalCredentialManagerController.current.credentialManager
 
+    val ssaid = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+
+    val isGoogleLoggedIn =
+        viewModel.getIsGoogleLoggedIn().collectAsState(initial = null).value
+
+    LaunchedEffect(key1 = isGoogleLoggedIn) {
+        if(isGoogleLoggedIn != null){
+            if(isGoogleLoggedIn){
+                viewModel.sendEvent(LoginEvent.AutoGoogleLogin)
+            } else {
+                viewModel.sendEvent(LoginEvent.GuestLogin(ssaid))
+            }
+        }
+    }
+
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = {
+        Text("임시 화면")
+        /*Button(onClick = {
             coroutineScope.launch {
                 googleLogin(
                     credentialManager = credentialManager!!,
@@ -44,18 +65,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
             }
         }) {
             Text(text = stringResource(id = R.string.google_login))
-        }
-        Button(onClick = {
-            viewModel.sendEvent(LoginEvent.GuestLogin)
-        }) {
-            Text(text = stringResource(id = R.string.guest_login))
-        }
+        }*/
+
     }
 
 
-    if (state.loading) {
-        Dialog(onDismissRequest = {}) {
-            CircularProgressIndicator() // 로딩 다이얼로그
-        }
-    }
 }

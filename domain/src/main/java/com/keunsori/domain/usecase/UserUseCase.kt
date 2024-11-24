@@ -4,17 +4,18 @@ import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.entity.ApiResult
 import com.keunsori.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 class UserUseCase(private val userRepository: UserRepository) {
     suspend operator fun invoke(
-        onSuccess: suspend () -> Unit
     ) {
         userRepository.initRefreshToken()
+    }
 
-        if (userRepository.refreshAccessToken()) {
-            onSuccess.invoke()
-        }
+    suspend fun autoGoogleLogin(): ApiResult<LoginResult> {
+        return userRepository.autoGoogleLogin()
     }
 
     suspend fun tryGoogleLogin(googleIdToken: String): ApiResult<LoginResult> {
@@ -23,6 +24,10 @@ class UserUseCase(private val userRepository: UserRepository) {
 
     suspend fun tryGuestLogin(guestId: String): ApiResult<LoginResult> {
         return userRepository.tryGuestLogin(guestId = guestId)
+    }
+
+    fun getIsGoogleLoggedIn(): Flow<Boolean?> {
+        return userRepository.getIsGoogleLoggedIn()
     }
 
     suspend fun logout() {

@@ -2,9 +2,12 @@ package com.keunsori.domain.repository
 
 import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.entity.ApiResult
+import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    suspend fun tryGoogleLogin(googleIdToken: String): ApiResult<LoginResult>
+    suspend fun autoGoogleLogin(): ApiResult<LoginResult>
+
+    suspend fun tryGoogleLogin(googleIdToken: String ): ApiResult<LoginResult>
 
     suspend fun tryGuestLogin(guestId: String): ApiResult<LoginResult>
 
@@ -19,4 +22,6 @@ interface UserRepository {
     fun setAccessToken(accessToken: String)
 
     suspend fun logout()
+
+    fun getIsGoogleLoggedIn(): Flow<Boolean?>
 }

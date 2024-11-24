@@ -9,6 +9,8 @@ import com.keunsori.domain.entity.ApiResult
 import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.entity.User
 import com.keunsori.domain.repository.UserRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,6 +19,10 @@ class UserRepositoryImpl @Inject constructor(
     private val userRemoteDataSource: UserRemoteDataSource,
     private val localDataSource: LocalDataSource,
 ) : UserRepository {
+    override suspend fun autoGoogleLogin(): ApiResult<LoginResult> {
+        return tryGoogleLogin(localDataSource.googleIdToken.first()?:"")
+    }
+
     override suspend fun tryGoogleLogin(googleIdToken: String): ApiResult<LoginResult> {
         return try {
             val res =
@@ -24,6 +30,7 @@ class UserRepositoryImpl @Inject constructor(
 
             localDataSource.setAccessToken(accessToken = res.accessToken)
             localDataSource.setRefreshToken(refreshToken = res.refreshToken)
+            localDataSource.googleLogin(googleIdToken)
             ApiResult.Success(
                 data = LoginResult(
                     accessToken = res.accessToken, refreshToken = res.refreshToken, user = User(res.user.id, res.user.name, res.user.email)
@@ -56,7 +63,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun initRefreshToken() {
-        localDataSource.initRefreshToken()
+        localDataSource.init()
     }
 
     override suspend fun refreshAccessToken(): Boolean {
@@ -90,6 +97,10 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun setAccessToken(accessToken: String) {
         localDataSource.setAccessToken(accessToken = accessToken)
+    }
+
+    override fun getIsGoogleLoggedIn(): Flow<Boolean?> {
+        return localDataSource.isGoogleLoggedIn
     }
 
     override suspend fun logout() {

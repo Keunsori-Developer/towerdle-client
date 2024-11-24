@@ -1,6 +1,8 @@
 package com.keunsori.presentation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,11 +25,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.keunsori.presentation.intent.MainEffect
 import com.keunsori.presentation.intent.LoginEffect
+import com.keunsori.presentation.intent.LoginEvent
 import com.keunsori.presentation.viewmodel.LoginViewModel
 import com.keunsori.presentation.ui.LoginScreen
 import com.keunsori.presentation.viewmodel.MainViewModel
 import com.keunsori.presentation.ui.InGameScreen
-import com.keunsori.presentation.ui.InfoScreen
+import com.keunsori.presentation.ui.SettingScreen
 import com.keunsori.presentation.ui.MainScreen
 import com.keunsori.presentation.ui.main.ChooseLevelScreen
 import com.keunsori.presentation.ui.theme.TowerdleTheme
@@ -66,6 +69,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("HardwareIds")
 @Composable
 fun Navigation(
     viewModel: MainViewModel,
@@ -168,8 +172,8 @@ fun Navigation(
             }
 
             composable(route = Navigation.Info.route) {
-                InfoScreen(
-                    viewModel = viewModel,
+                SettingScreen(
+                    loginViewModel = loginViewModel,
                 )
             }
         }

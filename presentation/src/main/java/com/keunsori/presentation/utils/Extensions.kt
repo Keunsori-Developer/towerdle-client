@@ -47,8 +47,7 @@ suspend fun googleLogin(credentialManager: CredentialManager, context: Context, 
         // 계정 선택 중 취소를 누를 때
         Log.d(tag, e.toString())
     } catch (e: NoCredentialException){
-        // 계정이 없을 때 -> setFilterByAuthorizedAccounts(true) 일 때 발생
+        // 계정이 없을 때 발생
         Log.d(tag, e.toString())
     }
-
 }
