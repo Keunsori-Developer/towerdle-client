@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">towerdle</string>
+    <string name="app_name">타래들</string>
     <string name="double_tab_back">"뒤로가기를 한번 더 누르면 종료합니다."</string>
     <string name="google_cloud_server_client_id">224180592685-6r7pbonsu44aadvorbstvpoandb52e11.apps.googleusercontent.com</string>
     <string name="cant_login">서버와의 연결에 실패하였습니다.</string>
