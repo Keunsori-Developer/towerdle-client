@@ -3,9 +3,10 @@ package com.keunsori.presentation.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.usecase.CheckAnswerUseCase
-import com.keunsori.domain.usecase.GetQuizWordUseCase
+import com.keunsori.domain.usecase.GetQuizInfoUseCase
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
 import com.keunsori.presentation.model.KeyboardItem
@@ -22,13 +23,12 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.ByteString.Companion.encodeUtf8
 import javax.inject.Inject
 
 @HiltViewModel
 class InGameViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val getQuizWordUseCase: GetQuizWordUseCase,
+    private val getQuizInfoUseCase: GetQuizInfoUseCase,
     private val checkAnswerUseCase: CheckAnswerUseCase
 ) : ViewModel() {
 
@@ -38,18 +38,18 @@ class InGameViewModel @Inject constructor(
 
     /**
      * ex)
-     * first: 안녕
+     * first: QuizInfo(word = 안녕)
      * second: ㅇㅏㄴㄴㅕㅇ
      */
-    lateinit var answer: Pair<String, CharArray>
+    lateinit var answer: Pair<QuizInfo, CharArray>
         private set
 
     init {
         val level = savedStateHandle.get<Int>("level") ?: 1
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                answer = getQuizWordUseCase(level)
-                println("answer: ${answer.first}")
+                answer = getQuizInfoUseCase(level)
+                println("quizInfo: ${answer.first}")
                 sendEvent(InGameEvent.QuizLoaded(answer.second.size))
             }
         }

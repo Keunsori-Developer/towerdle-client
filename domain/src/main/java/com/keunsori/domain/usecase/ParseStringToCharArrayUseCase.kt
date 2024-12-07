@@ -28,6 +28,23 @@ class ParseStringToCharArrayUseCase {
         }
     }
 
+    val separatedLastLetter: (Char) -> CharArray = {
+        when (it) {
+            'ㄳ' -> charArrayOf('ㄱ', 'ㅅ')
+            'ㄵ' -> charArrayOf('ㄴ', 'ㅈ')
+            'ㄶ' -> charArrayOf('ㄴ', 'ㅎ')
+            'ㄺ' -> charArrayOf('ㄹ', 'ㄱ')
+            'ㄻ' -> charArrayOf('ㄹ', 'ㅁ')
+            'ㄼ' -> charArrayOf('ㄹ', 'ㅂ')
+            'ㄽ' -> charArrayOf('ㄹ', 'ㅅ')
+            'ㄾ' -> charArrayOf('ㄹ', 'ㅌ')
+            'ㄿ' -> charArrayOf('ㄹ', 'ㅍ')
+            'ㅀ' -> charArrayOf('ㄹ', 'ㅎ')
+            'ㅄ' -> charArrayOf('ㅂ', 'ㅅ')
+            else -> charArrayOf(it)
+        }
+    }
+
     /**
     String 형태의 한글 문자열을 초성, 중성, 종성으로 구분하여 CharArray로 만든다.
      */
@@ -52,7 +69,7 @@ class ParseStringToCharArrayUseCase {
 
             list.add(firstLetter[h1])
             list.addAll(separatedMiddleLetter(middleLetter[h2]).toTypedArray())
-            if (h3 != 0) list.add(lastLetter[h3])
+            if (h3 != 0) list.addAll(separatedLastLetter(lastLetter[h3]).toTypedArray())
         }
         return list.toCharArray()
     }

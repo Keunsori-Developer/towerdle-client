@@ -1,19 +1,35 @@
 package com.keunsori.data.repository
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.keunsori.data.datasource.MainRemoteDataSource
+import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.entity.QuizOption
+import com.keunsori.domain.entity.WordDefinition
 import com.keunsori.domain.repository.InGameRepository
 import javax.inject.Inject
 
 internal class InGameRepositoryImpl @Inject constructor(
-    private val remoteDataSource: MainRemoteDataSource) : InGameRepository {
+    private val remoteDataSource: MainRemoteDataSource
+) : InGameRepository {
     /**
-     * 출제할 단어를 가져옵니다.
+     * 출제할 단어 정보를 가져옵니다.
      */
-    override suspend fun requestQuizWord(option: QuizOption): String {
-        //TODO: id 값 저장
-        return remoteDataSource.getQuiz(option).value
+    override suspend fun requestQuizWord(option: QuizOption): QuizInfo {
+        val result = remoteDataSource.getQuiz(option)
+        return with(result) {
+            QuizInfo(
+                id = id,
+                word = value,
+                length = length,
+                count = count,
+                definitions = Gson().fromJson(
+                    definitions,
+                    object : TypeToken<List<WordDefinition>>() {}.type
+                )
+            )
+        }
     }
 
     /**

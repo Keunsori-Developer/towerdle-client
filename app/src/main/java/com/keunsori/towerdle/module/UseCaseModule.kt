@@ -1,24 +1,14 @@
 package com.keunsori.towerdle.module
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.keunsori.data.repository.UserRepositoryImpl
 import com.keunsori.domain.repository.InGameRepository
-import com.keunsori.domain.repository.MainRepository
-import com.keunsori.domain.repository.UserRepository
 import com.keunsori.domain.usecase.CheckAnswerUseCase
-import com.keunsori.domain.usecase.GetQuizWordUseCase
+import com.keunsori.domain.usecase.GetQuizInfoUseCase
 import com.keunsori.domain.usecase.UserUseCase
-import com.keunsori.towerdle.App.Companion.dataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -36,7 +26,7 @@ object UseCaseModule {
     }
 
     @Provides
-    fun provideGetQuizWordUseCase(inGameRepository: InGameRepository): GetQuizWordUseCase {
-        return GetQuizWordUseCase(inGameRepository)
+    fun provideGetQuizWordUseCase(inGameRepository: InGameRepository): GetQuizInfoUseCase {
+        return GetQuizInfoUseCase(inGameRepository)
     }
 }
