@@ -1,6 +1,7 @@
 package com.keunsori.presentation.ui.main
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -97,37 +102,34 @@ private fun LevelItem(
     isSelected: Boolean,
     onClicked: () -> Unit
 ) {
-    Column(
+    Card(
+        onClick = onClicked,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+        ),
         modifier = Modifier
             .padding(horizontal = 10.dp)
-            .fillMaxWidth()
-            .then(
-                if (isSelected) Modifier.background(
-                    MaterialTheme.colorScheme.primaryContainer,
-                    RoundedCornerShape(20.dp)
-                ) else Modifier
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .clickable { onClicked() }
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .fillMaxWidth(),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(20.dp)
         ) {
-            Icon(
-                painter = painterResource(id = iconRes),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Text(title, style = MaterialTheme.typography.titleMedium)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(title, style = MaterialTheme.typography.titleMedium)
+            }
+            Text(description, style = MaterialTheme.typography.bodyMedium)
         }
-        Text(description, style = MaterialTheme.typography.bodyMedium)
     }
 
 
