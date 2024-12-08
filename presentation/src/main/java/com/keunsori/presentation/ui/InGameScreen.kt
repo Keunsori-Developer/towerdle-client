@@ -50,7 +50,7 @@ fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
         if (mainState.isGameFinished) {
             ResultScreen(
                 isCorrectAnswer = mainState.isCorrectAnswer,
-                realAnswer = inGameViewModel.answer.first.word,
+                realAnswer = inGameViewModel.quizData.first.word,
                 congratImage = {
                     AsyncImage(
                         model = R.drawable.congrat,

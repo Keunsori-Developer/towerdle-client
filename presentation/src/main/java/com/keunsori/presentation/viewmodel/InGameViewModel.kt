@@ -7,6 +7,7 @@ import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.usecase.CheckAnswerUseCase
 import com.keunsori.domain.usecase.GetQuizInfoUseCase
+import com.keunsori.domain.usecase.SendQuizResultUseCase
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
 import com.keunsori.presentation.model.KeyboardItem
@@ -29,7 +30,8 @@ import javax.inject.Inject
 class InGameViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getQuizInfoUseCase: GetQuizInfoUseCase,
-    private val checkAnswerUseCase: CheckAnswerUseCase
+    private val checkAnswerUseCase: CheckAnswerUseCase,
+    private val sendQuizResultUseCase: SendQuizResultUseCase
 ) : ViewModel() {
 
     @Inject
@@ -41,16 +43,16 @@ class InGameViewModel @Inject constructor(
      * first: QuizInfo(word = 안녕)
      * second: ㅇㅏㄴㄴㅕㅇ
      */
-    lateinit var answer: Pair<QuizInfo, CharArray>
+    lateinit var quizData: Pair<QuizInfo, CharArray>
         private set
 
     init {
         val level = savedStateHandle.get<Int>("level") ?: 1
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                answer = getQuizInfoUseCase(level)
-                println("quizInfo: ${answer.first}")
-                sendEvent(InGameEvent.QuizLoaded(answer.second.size))
+                quizData = getQuizInfoUseCase(level)
+                println("quizInfo: ${quizData.first}")
+                sendEvent(InGameEvent.QuizLoaded(quizData.second.size))
             }
         }
     }
@@ -74,7 +76,7 @@ class InGameViewModel @Inject constructor(
 
                 return when (event) {
                     InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
-                    InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer.second)
+                    InGameEvent.ClickEnterButton -> currentState.handleEnterButton(quizData.second)
                     is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
                     else -> return currentState
                 }
@@ -144,13 +146,21 @@ class InGameViewModel @Inject constructor(
         }
 
         val isAnswer = answerResult.list.all { it.type == QuizInputResult.Type.MATCHED }
+        val gameFinished = currentTrialCount + 1 == this.maxTrialSize || isAnswer
+        if (gameFinished) {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    sendQuizResultUseCase.invoke(quizData.first.id, currentTrialCount + 1, isAnswer)
+                }
+            }
+        }
 
         return this.copy(
             currentTrialCount = currentTrialCount + 1,
             userInputsHistory = newUserInputs,
             currentUserInput = UserInput.empty,
             keyboardItems = newKeyboardItems,
-            isGameFinished = currentTrialCount + 1 == this.maxTrialSize || isAnswer,
+            isGameFinished = gameFinished,
             isCorrectAnswer = isAnswer
 
         )

@@ -38,7 +38,16 @@ internal class InGameRepositoryImpl @Inject constructor(
     override fun checkAnswer(input: CharArray, realAnswer: CharArray): QuizInputResult {
         val answerSize = realAnswer.size
         val inputSize = input.size
-        if (input.isEmpty()) return QuizInputResult(listOf(QuizInputResult.Element.empty), false)
+
+        // 1. 정답 입력한 자모 갯수 체크
+        if (input.size != realAnswer.size) return QuizInputResult(
+            isValidWord = false,
+            listOf(QuizInputResult.Element.empty),
+            false
+        )
+
+        // 2. 유효한 단어인지 체크
+        //TODO
 
         val elements = Array(answerSize) { QuizInputResult.Element.empty }
 
@@ -57,6 +66,18 @@ internal class InGameRepositoryImpl @Inject constructor(
             }
         }
 
-        return QuizInputResult(list = elements.toList(), correct = input.contentEquals(realAnswer))
+        return QuizInputResult(
+            isValidWord = true,
+            list = elements.toList(),
+            correct = input.contentEquals(realAnswer)
+        )
+    }
+
+    /**
+     * 퀴즈 결과를 서버로 전달합니다.
+     *
+     */
+    override suspend fun sendResult(quizId: String, attemptCount: Int, success: Boolean) {
+        remoteDataSource.sendQuizResult(quizId, attemptCount, success)
     }
 }
