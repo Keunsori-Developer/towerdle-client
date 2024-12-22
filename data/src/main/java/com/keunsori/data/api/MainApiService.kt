@@ -1,9 +1,11 @@
 package com.keunsori.data.api
 
+import com.keunsori.data.data.request.GetQuizWordRequest
 import com.keunsori.data.data.request.SendQuizResultRequest
 import com.keunsori.data.data.response.CheckWordResponse
 import com.keunsori.data.data.response.GetQuizWordResponse
 import com.keunsori.data.data.response.Response
+import com.keunsori.data.data.response.SendQuizResultResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -13,17 +15,15 @@ import retrofit2.http.Query
 
 
 interface MainApiService {
-    @GET("word")
-    fun getQuizWord(
-        @Query("length") length: Int,
-        @Query("count") count: Int,
-        @Query("complexVowel") complexVowel: Boolean,
-        @Query("complexConsonant") complexConsonant: Boolean,
-    ): Call<GetQuizWordResponse>
+    @POST("quiz")
+    fun getQuizWord(@Body request: GetQuizWordRequest): Call<GetQuizWordResponse>
 
-    @GET("word/check/{word}")
-    fun checkWord(@Path("word") word: String): Call<CheckWordResponse>
+    @GET("word/{value}")
+    fun checkWord(@Path("value") word: String): Call<CheckWordResponse>
 
-    @POST("word/solve")
-    fun sendQuizResult(@Body request: SendQuizResultRequest): Call<Response>
+    @POST("quiz/{uuid}")
+    fun sendQuizResult(
+        @Path("uuid") uuid: String,
+        @Body request: SendQuizResultRequest
+    ): Call<SendQuizResultResponse>
 }

@@ -137,10 +137,7 @@ fun Navigation(
                     navHostController.popBackStack()
                 }, navigateToInGame = { level ->
                     navHostController.navigate(
-                        Navigation.Game.route.replace(
-                            "{level}",
-                            level.toString()
-                        )
+                        Navigation.Game.route.replace("{level}", level.name)
                     ) {
                         popUpTo(Navigation.Main_ChooseLevel.route) {
                             inclusive = true
@@ -152,12 +149,11 @@ fun Navigation(
             composable(
                 route = Navigation.Game.route, arguments = listOf(
                     navArgument("level") {
-                        type = NavType.IntType
+                        type = NavType.StringType
                     },
                 )
             ) { navBackStackEntry ->
                 /* Extracting the level from the route */
-                val level = navBackStackEntry.arguments?.getInt("level")
                 val inGameViewModel = hiltViewModel<InGameViewModel>()
                 InGameScreen(
                     inGameViewModel = inGameViewModel,

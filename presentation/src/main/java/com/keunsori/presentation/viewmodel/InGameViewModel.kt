@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
+import com.keunsori.domain.entity.QuizLevel
 import com.keunsori.domain.usecase.CheckAnswerUseCase
 import com.keunsori.domain.usecase.GetQuizInfoUseCase
 import com.keunsori.domain.usecase.SendQuizResultUseCase
@@ -47,10 +48,10 @@ class InGameViewModel @Inject constructor(
         private set
 
     init {
-        val level = savedStateHandle.get<Int>("level") ?: 1
+        val level = savedStateHandle.get<String>("level") ?: QuizLevel.EASY.name
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                quizData = getQuizInfoUseCase(level)
+                quizData = getQuizInfoUseCase(QuizLevel.valueOf(level))
                 println("quizInfo: ${quizData.first}")
                 sendEvent(InGameEvent.QuizLoaded(quizData.second.size))
             }
@@ -150,7 +151,7 @@ class InGameViewModel @Inject constructor(
         if (gameFinished) {
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
-                    sendQuizResultUseCase.invoke(quizData.first.id, currentTrialCount + 1, isAnswer)
+                    sendQuizResultUseCase.invoke(quizData.first.uuid, currentTrialCount + 1, isAnswer)
                 }
             }
         }

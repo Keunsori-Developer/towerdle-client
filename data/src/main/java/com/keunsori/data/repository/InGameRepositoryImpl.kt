@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken
 import com.keunsori.data.datasource.MainRemoteDataSource
 import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
-import com.keunsori.domain.entity.QuizOption
+import com.keunsori.domain.entity.QuizLevel
 import com.keunsori.domain.entity.WordDefinition
 import com.keunsori.domain.repository.InGameRepository
 import javax.inject.Inject
@@ -16,18 +16,19 @@ internal class InGameRepositoryImpl @Inject constructor(
     /**
      * 출제할 단어 정보를 가져옵니다.
      */
-    override suspend fun requestQuizWord(option: QuizOption): QuizInfo {
-        val result = remoteDataSource.getQuiz(option)
+    override suspend fun requestQuizWord(level: QuizLevel): QuizInfo {
+        val result = remoteDataSource.getQuiz(level.name)
         return with(result) {
             QuizInfo(
-                id = id,
-                word = value,
-                length = length,
-                count = count,
+                uuid = uuid,
+                word = word.value,
+                length = word.length,
+                count = word.count,
                 definitions = Gson().fromJson(
-                    definitions,
+                    word.definitions,
                     object : TypeToken<List<WordDefinition>>() {}.type
-                )
+                ),
+                maxAttempts = difficulty.maxAttempts
             )
         }
     }
@@ -77,7 +78,7 @@ internal class InGameRepositoryImpl @Inject constructor(
      * 퀴즈 결과를 서버로 전달합니다.
      *
      */
-    override suspend fun sendResult(quizId: String, attemptCount: Int, success: Boolean) {
-        remoteDataSource.sendQuizResult(quizId, attemptCount, success)
+    override suspend fun sendResult(uuid: String, attemptCount: Int, success: Boolean) {
+        remoteDataSource.sendQuizResult(uuid, attemptCount, success)
     }
 }
