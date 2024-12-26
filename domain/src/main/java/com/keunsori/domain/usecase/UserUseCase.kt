@@ -22,8 +22,8 @@ class UserUseCase(private val userRepository: UserRepository) {
         return userRepository.tryGoogleLogin(googleIdToken = googleIdToken)
     }
 
-    suspend fun tryGuestLogin(guestId: String): ApiResult<LoginResult> {
-        return userRepository.tryGuestLogin(guestId = guestId)
+    suspend fun tryGuestLogin(): ApiResult<LoginResult> {
+        return userRepository.tryGuestLogin()
     }
 
     fun getIsGoogleLoggedIn(): Flow<Boolean?> {

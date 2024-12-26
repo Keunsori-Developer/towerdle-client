@@ -22,7 +22,7 @@ suspend inline fun <Res : BaseResponse> Call<Res>.getResponse() = suspendCorouti
                 val stringToJson = JSONObject(response.errorBody()?.string()!!)
                 Log.d("HttpResponse", "fail: $stringToJson")
 
-                it.resumeWith(Result.failure(Exception(stringToJson.getString("message"))))
+                it.resumeWith(Result.failure(Exception(stringToJson.getString("errorCode"))))
             }
         }
 

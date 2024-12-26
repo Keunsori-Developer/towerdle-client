@@ -20,20 +20,22 @@ class UserRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource,
 ) : UserRepository {
     override suspend fun autoGoogleLogin(): ApiResult<LoginResult> {
-        return tryGoogleLogin(localDataSource.googleIdToken.first()?:"")
-    }
-
-    override suspend fun tryGoogleLogin(googleIdToken: String): ApiResult<LoginResult> {
         return try {
             val res =
-                userRemoteDataSource.googleLogin(oauthRequest = OauthRequest(jwt = googleIdToken))
+                userRemoteDataSource.refreshAccessToken(refreshRequest = RefreshRequest(refreshToken = localDataSource.refreshToken))
 
             localDataSource.setAccessToken(accessToken = res.accessToken)
             localDataSource.setRefreshToken(refreshToken = res.refreshToken)
-            localDataSource.googleLogin(googleIdToken)
+
             ApiResult.Success(
                 data = LoginResult(
-                    accessToken = res.accessToken, refreshToken = res.refreshToken, user = User(res.user.id, res.user.name, res.user.email)
+                    accessToken = res.accessToken,
+                    refreshToken = res.refreshToken,
+                    user = User(
+                        id = res.user.id,
+                        name = res.user.name,
+                        email = res.user.email
+                    )
                 )
             )
         } catch (e: Exception) {
@@ -43,16 +45,47 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun tryGuestLogin(guestId: String): ApiResult<LoginResult> {
+    override suspend fun tryGoogleLogin(googleIdToken: String): ApiResult<LoginResult> {
         return try {
             val res =
-                userRemoteDataSource.guestLogin(guestRequest = GuestRequest(guestId = "39d017ed-9a60-4872-bcad-7ead864148f1"))
+                userRemoteDataSource.googleLogin(oauthRequest = OauthRequest(jwt = googleIdToken))
+
+            localDataSource.setAccessToken(accessToken = res.accessToken)
+            localDataSource.setRefreshToken(refreshToken = res.refreshToken)
+            localDataSource.googleLogin()
+            ApiResult.Success(
+                data = LoginResult(
+                    accessToken = res.accessToken,
+                    refreshToken = res.refreshToken,
+                    user = User(res.user.id, res.user.name, res.user.email)
+                )
+            )
+        } catch (e: Exception) {
+            ApiResult.Fail(
+                exception = e
+            )
+        }
+    }
+
+    override suspend fun tryGuestLogin(): ApiResult<LoginResult> {
+        return try {
+            val res =
+                userRemoteDataSource.guestLogin(
+                    guestRequest = GuestRequest(
+                        guestId = localDataSource.guestIdToken.first() ?: ""
+                    )
+                )
+            if (res.isNewUser) {
+                localDataSource.guestLogin(res.providerId)
+            }
 
             localDataSource.setAccessToken(accessToken = res.accessToken)
             localDataSource.setRefreshToken(refreshToken = res.refreshToken)
             ApiResult.Success(
                 data = LoginResult(
-                    accessToken = res.accessToken, refreshToken = res.refreshToken, user = User(res.user.id, res.user.name, res.user.email)
+                    accessToken = res.accessToken,
+                    refreshToken = res.refreshToken,
+                    user = User(res.user.id, res.user.name, res.user.email)
                 )
             )
         } catch (e: Exception) {
@@ -87,10 +120,6 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRefreshToken(): String {
-        return localDataSource.refreshToken
-    }
-
     override suspend fun setRefreshToken(refreshToken: String) {
         localDataSource.setRefreshToken(refreshToken = refreshToken)
     }
@@ -105,5 +134,6 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun logout() {
         localDataSource.deleteToken()
+        tryGuestLogin()
     }
 }

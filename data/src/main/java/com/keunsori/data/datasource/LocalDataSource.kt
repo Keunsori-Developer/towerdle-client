@@ -22,7 +22,8 @@ class LocalDataSource @Inject constructor(
     companion object {
         val REFRESH_TOKEN_KEY = stringPreferencesKey("REFRESH_TOKEN_KEY")
         val IS_GOOGLE_LOGGED_IN_KEY = booleanPreferencesKey("IS_GOOGLE_LOGGED_IN")
-        val GOOGLE_ID_TOKEN = stringPreferencesKey("GOOGLE_ID_TOKEN")
+        val GUEST_ID_TOKEN = stringPreferencesKey("GUEST_ID_TOKEN")
+
     }
 
     private var _refreshToken: String = ""
@@ -39,8 +40,8 @@ class LocalDataSource @Inject constructor(
         it[IS_GOOGLE_LOGGED_IN_KEY] ?: false
     }
 
-    val googleIdToken: Flow<String?> = dataStore.data.map {
-        it[GOOGLE_ID_TOKEN] ?: ""
+    val guestIdToken: Flow<String?> = dataStore.data.map {
+        it[GUEST_ID_TOKEN] ?: ""
     }
 
     suspend fun init() {
@@ -53,6 +54,7 @@ class LocalDataSource @Inject constructor(
         }.map {
             it[REFRESH_TOKEN_KEY] ?: ""
         }.first()
+        Log.d("!!!!!!!!!!!!!", refreshToken)
     }
 
     suspend fun setRefreshToken(
@@ -68,11 +70,20 @@ class LocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun googleLogin(idToken: String) {
+    suspend fun googleLogin() {
         try {
             dataStore.edit {
                 it[IS_GOOGLE_LOGGED_IN_KEY] = true
-                it[GOOGLE_ID_TOKEN] = idToken
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun guestLogin(guestIdToken: String) {
+        try {
+            dataStore.edit {
+                it[GUEST_ID_TOKEN] = guestIdToken
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -84,6 +95,9 @@ class LocalDataSource @Inject constructor(
     }
 
     suspend fun deleteToken() {
+        dataStore.edit {
+            it[IS_GOOGLE_LOGGED_IN_KEY] = false
+        }
         setRefreshToken("")
         setAccessToken("")
     }

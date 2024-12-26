@@ -31,6 +31,12 @@ class LoginViewModel @Inject constructor(
     private val effectChannel = Channel<LoginEffect>(Channel.BUFFERED)
     val effectFlow = effectChannel.receiveAsFlow()
 
+    init {
+        viewModelScope.launch {
+            userUseCase.invoke()
+        }
+    }
+
     // UI 변경
     fun sendEvent(event: LoginEvent) {
         viewModelScope.launch {
@@ -38,6 +44,7 @@ class LoginViewModel @Inject constructor(
                 LoginEvent.AutoGoogleLogin -> {
                     autoGoogleLogin()
                 }
+
                 is LoginEvent.GoogleLogin -> {
                     tryGoogleLogin(googleIdToken = event.idToken)
                 }
@@ -60,7 +67,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun autoGoogleLogin(){
+    private fun autoGoogleLogin() {
         viewModelScope.launch {
             sendEvent(LoginEvent.StartLoading)
             Log.d("LoginViewModel", "tryGoogleLogin")
@@ -69,7 +76,12 @@ class LoginViewModel @Inject constructor(
             sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
-                    sendEvent(LoginEvent.SuccessGoogleLogin)
+                    sendEvent(
+                        LoginEvent.SuccessGoogleLogin(
+                            email = res.data.user.email,
+                            name = res.data.user.name
+                        )
+                    )
                     sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
                 }
 
@@ -90,8 +102,12 @@ class LoginViewModel @Inject constructor(
             sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
-                    sendEvent(LoginEvent.SuccessGoogleLogin)
-                    sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
+                    sendEvent(
+                        LoginEvent.SuccessGoogleLogin(
+                            email = res.data.user.email,
+                            name = res.data.user.name
+                        )
+                    )
                 }
 
                 is ApiResult.Fail -> {
@@ -107,7 +123,7 @@ class LoginViewModel @Inject constructor(
             sendEvent(LoginEvent.StartLoading)
             Log.d("LoginViewModel", "tryGuestLogin")
             val res =
-                userUseCase.tryGuestLogin(guestId) // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
+                userUseCase.tryGuestLogin() // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
             sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
@@ -123,7 +139,6 @@ class LoginViewModel @Inject constructor(
     }
 
 
-
     fun getIsGoogleLoggedIn(): Flow<Boolean?> {
         return userUseCase.getIsGoogleLoggedIn()
     }
@@ -131,7 +146,10 @@ class LoginViewModel @Inject constructor(
     fun logout(googleLogout: suspend () -> Unit) {
         viewModelScope.launch {
             // 로그아웃 (토큰 제거)
+            sendEvent(LoginEvent.StartLoading)
             userUseCase.logout()
+            sendEvent(LoginEvent.FinishLoading)
+            sendEvent(LoginEvent.Logout)
             // 구글 계정 앱 로그아웃
             googleLogout.invoke()
         }
