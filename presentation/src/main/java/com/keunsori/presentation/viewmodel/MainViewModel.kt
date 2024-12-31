@@ -45,4 +45,15 @@ class MainViewModel @Inject constructor(
     fun showToast(message: Int){
         sendEffect(MainEffect.ShowToast(message))
     }
+    
+    fun logout(googleLogout: suspend () -> Unit) {
+        viewModelScope.launch {
+            // 로그아웃 (토큰 제거)
+            userUseCase.logout()
+            // 로그인 화면으로 이동
+            moveToScreen(Navigation.Login.route, true)
+            // 구글 계정 앱 로그아웃
+            googleLogout.invoke()
+        }
+    }
 }

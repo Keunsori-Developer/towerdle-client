@@ -47,6 +47,7 @@ fun MainScreen(viewModel: MainViewModel, onFinish: () -> Unit) {
             contentDescription = stringResource(id = R.string.game_start),
             modifier = Modifier.fillMaxWidth().height(147.dp))
 
+
         Image(
             painter = painterResource(id = R.drawable.start_button),
             contentDescription = stringResource(id = R.string.game_start),
