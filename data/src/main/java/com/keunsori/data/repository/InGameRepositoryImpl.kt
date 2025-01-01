@@ -34,6 +34,19 @@ internal class InGameRepositoryImpl @Inject constructor(
     }
 
     /**
+     * 사용자가 입력한 값이 존재하는 단어인지 확인합니다.
+     *
+     */
+    override suspend fun isExistWord(input: CharArray): Boolean {
+        return try {
+            val checkResult = remoteDataSource.checkWord(input.joinToString())
+            checkResult.definitions.isNotEmpty()
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    /**
      * 사용자가 입력한 정답이 실제 정답과 일치하는지를 확인합니다.
      */
     override fun checkAnswer(input: CharArray, realAnswer: CharArray): QuizInputResult {
@@ -46,9 +59,6 @@ internal class InGameRepositoryImpl @Inject constructor(
             listOf(QuizInputResult.Element.empty),
             false
         )
-
-        // 2. 유효한 단어인지 체크
-        //TODO
 
         val elements = Array(answerSize) { QuizInputResult.Element.empty }
 

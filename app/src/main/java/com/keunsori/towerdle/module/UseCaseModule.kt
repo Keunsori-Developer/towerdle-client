@@ -4,6 +4,7 @@ import com.keunsori.data.repository.UserRepositoryImpl
 import com.keunsori.domain.repository.InGameRepository
 import com.keunsori.domain.usecase.CheckAnswerUseCase
 import com.keunsori.domain.usecase.GetQuizInfoUseCase
+import com.keunsori.domain.usecase.IsExistWordUseCase
 import com.keunsori.domain.usecase.SendQuizResultUseCase
 import com.keunsori.domain.usecase.UserUseCase
 import dagger.Module
@@ -34,5 +35,10 @@ object UseCaseModule {
     @Provides
     fun provideSendQuizResultUseCase(inGameRepository: InGameRepository): SendQuizResultUseCase {
         return SendQuizResultUseCase(inGameRepository)
+    }
+
+    @Provides
+    fun provideIsExistWordUseCase(inGameRepository: InGameRepository): IsExistWordUseCase {
+        return IsExistWordUseCase(inGameRepository)
     }
 }

@@ -11,6 +11,12 @@ interface InGameRepository {
     suspend fun requestQuizWord(level: QuizLevel): QuizInfo
 
     /**
+     * 사용자가 입력한 값이 존재하는 단어인지 확인합니다.
+     *
+     */
+    suspend fun isExistWord(input: CharArray): Boolean
+
+    /**
      * 사용자가 입력한 정답이 실제 정답과 일치하는지를 확인합니다.
      */
     fun checkAnswer(input: CharArray, realAnswer: CharArray): QuizInputResult

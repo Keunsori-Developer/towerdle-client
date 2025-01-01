@@ -4,14 +4,12 @@ import com.keunsori.data.data.request.GetQuizWordRequest
 import com.keunsori.data.data.request.SendQuizResultRequest
 import com.keunsori.data.data.response.CheckWordResponse
 import com.keunsori.data.data.response.GetQuizWordResponse
-import com.keunsori.data.data.response.Response
 import com.keunsori.data.data.response.SendQuizResultResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 
 interface MainApiService {

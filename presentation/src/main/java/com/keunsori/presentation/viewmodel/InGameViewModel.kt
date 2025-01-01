@@ -8,6 +8,7 @@ import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.entity.QuizLevel
 import com.keunsori.domain.usecase.CheckAnswerUseCase
 import com.keunsori.domain.usecase.GetQuizInfoUseCase
+import com.keunsori.domain.usecase.IsExistWordUseCase
 import com.keunsori.domain.usecase.SendQuizResultUseCase
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
@@ -18,6 +19,7 @@ import com.keunsori.presentation.ui.theme.Color
 import com.keunsori.presentation.utils.GifLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -31,6 +33,7 @@ import javax.inject.Inject
 class InGameViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getQuizInfoUseCase: GetQuizInfoUseCase,
+    private val isExistWordUseCase: IsExistWordUseCase,
     private val checkAnswerUseCase: CheckAnswerUseCase,
     private val sendQuizResultUseCase: SendQuizResultUseCase
 ) : ViewModel() {
@@ -66,7 +69,7 @@ class InGameViewModel @Inject constructor(
         event.send(newEvent)
     }
 
-    private fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
+    private suspend fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
         when (state) {
             InGameUiState.Loading -> {
                 if (event is InGameEvent.QuizLoaded) return InGameUiState.Main.init(event.quizSize)
@@ -93,12 +96,18 @@ class InGameViewModel @Inject constructor(
         return this.copy(currentUserInput = updatedUserInput)
     }
 
-    private fun InGameUiState.Main.handleEnterButton(answer: CharArray): InGameUiState.Main {
+    private suspend fun InGameUiState.Main.handleEnterButton(answer: CharArray): InGameUiState.Main {
         if (currentUserInput.elements.size != quizSize) return this
 
+        val userAnswer = currentUserInput.elements.map { it.letter }.toCharArray()
+
+        val isExist = withContext<Boolean>(Dispatchers.IO) {
+            return@withContext isExistWordUseCase(userAnswer)
+        }
+        if (!isExist) return this // 유효하지 않은 정답 입력 시 그냥 리턴
+
         val newUserInputs = userInputsHistory.toMutableList()
-        val answerResult =
-            checkAnswerUseCase(currentUserInput.elements.map { it.letter }.toCharArray(), answer)
+        val answerResult = checkAnswerUseCase(userAnswer, answer)
 
         // 유저가 입력한 정답 체크
         val checkedUserInput = answerResult.list.map { e ->
@@ -151,7 +160,11 @@ class InGameViewModel @Inject constructor(
         if (gameFinished) {
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
-                    sendQuizResultUseCase.invoke(quizData.first.uuid, currentTrialCount + 1, isAnswer)
+                    sendQuizResultUseCase.invoke(
+                        quizData.first.uuid,
+                        currentTrialCount + 1,
+                        isAnswer
+                    )
                 }
             }
         }
