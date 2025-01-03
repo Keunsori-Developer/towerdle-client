@@ -1,5 +1,6 @@
 package com.keunsori.presentation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -21,20 +22,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.keunsori.presentation.intent.MainEffect
 import com.keunsori.presentation.intent.LoginEffect
-import com.keunsori.presentation.viewmodel.LoginViewModel
-import com.keunsori.presentation.ui.LoginScreen
-import com.keunsori.presentation.viewmodel.MainViewModel
+import com.keunsori.presentation.intent.MainEffect
 import com.keunsori.presentation.ui.InGameScreen
-import com.keunsori.presentation.ui.InfoScreen
+import com.keunsori.presentation.ui.LoginScreen
 import com.keunsori.presentation.ui.MainScreen
+import com.keunsori.presentation.ui.SettingScreen
 import com.keunsori.presentation.ui.main.ChooseLevelScreen
 import com.keunsori.presentation.ui.theme.TowerdleTheme
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.MyCredentialManagerController
 import com.keunsori.presentation.utils.Navigation
 import com.keunsori.presentation.viewmodel.InGameViewModel
+import com.keunsori.presentation.viewmodel.LoginViewModel
+import com.keunsori.presentation.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -66,6 +67,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("HardwareIds")
 @Composable
 fun Navigation(
     viewModel: MainViewModel,
@@ -168,8 +170,8 @@ fun Navigation(
             }
 
             composable(route = Navigation.Info.route) {
-                InfoScreen(
-                    viewModel = viewModel,
+                SettingScreen(
+                    loginViewModel = loginViewModel,
                 )
             }
         }

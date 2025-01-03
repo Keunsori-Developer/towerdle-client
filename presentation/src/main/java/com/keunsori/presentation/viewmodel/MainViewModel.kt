@@ -45,7 +45,7 @@ class MainViewModel @Inject constructor(
     fun showToast(message: Int){
         sendEffect(MainEffect.ShowToast(message))
     }
-
+    
     fun logout(googleLogout: suspend () -> Unit) {
         viewModelScope.launch {
             // 로그아웃 (토큰 제거)

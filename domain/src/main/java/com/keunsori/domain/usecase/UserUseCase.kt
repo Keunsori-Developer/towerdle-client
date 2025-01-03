@@ -3,27 +3,31 @@ package com.keunsori.domain.usecase
 import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.entity.ApiResult
 import com.keunsori.domain.repository.UserRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 class UserUseCase(private val userRepository: UserRepository) {
     suspend operator fun invoke(
-        onSuccess: suspend () -> Unit
     ) {
         userRepository.initRefreshToken()
-        if (userRepository.refreshAccessToken()) {
-            onSuccess.invoke()
-        }
     }
 
-    suspend fun tryLogin(googleIdToken: String): ApiResult<LoginResult> {
-        return userRepository.tryLogin(googleIdToken = googleIdToken)
+    suspend fun autoGoogleLogin(): ApiResult<LoginResult> {
+        return userRepository.autoGoogleLogin()
     }
 
-    fun setLoginType(isGuest: Boolean){
-        userRepository.setLoginType(isGuest = isGuest)
+    suspend fun tryGoogleLogin(googleIdToken: String): ApiResult<LoginResult> {
+        return userRepository.tryGoogleLogin(googleIdToken = googleIdToken)
+    }
+
+    suspend fun tryGuestLogin(): ApiResult<LoginResult> {
+        return userRepository.tryGuestLogin()
+    }
+
+    fun getIsGoogleLoggedIn(): Flow<Boolean?> {
+        return userRepository.getIsGoogleLoggedIn()
     }
 
     suspend fun logout() {
