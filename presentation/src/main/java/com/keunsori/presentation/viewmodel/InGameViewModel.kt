@@ -1,5 +1,6 @@
 package com.keunsori.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -51,13 +52,8 @@ class InGameViewModel @Inject constructor(
         private set
 
     init {
-        val level = savedStateHandle.get<String>("level") ?: QuizLevel.EASY.name
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                quizData = getQuizInfoUseCase(QuizLevel.valueOf(level))
-                println("quizInfo: ${quizData.first}")
-                sendEvent(InGameEvent.QuizLoaded(quizData.second.size))
-            }
+            getQuizData()
         }
     }
 
@@ -82,11 +78,25 @@ class InGameViewModel @Inject constructor(
                     InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
                     InGameEvent.ClickEnterButton -> currentState.handleEnterButton(quizData.second)
                     is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
+                    InGameEvent.TryAgain -> {
+                        getQuizData()
+                        InGameUiState.Loading
+                    }
+
                     else -> return currentState
                 }
             }
         }
         return state
+    }
+
+    private suspend fun getQuizData() {
+        val level = savedStateHandle.get<String>("level") ?: QuizLevel.EASY.name
+        withContext(Dispatchers.IO) {
+            quizData = getQuizInfoUseCase(QuizLevel.valueOf(level))
+            Log.d(this.javaClass.simpleName, "quizInfo: ${quizData.first}")
+            sendEvent(InGameEvent.QuizLoaded(quizData.second.size))
+        }
     }
 
     private fun InGameUiState.Main.handleBackspaceButton(): InGameUiState.Main {

@@ -25,6 +25,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
+
     val uiState = inGameViewModel.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -51,16 +53,21 @@ fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
             ResultScreen(
                 isCorrectAnswer = mainState.isCorrectAnswer,
                 realAnswer = inGameViewModel.quizData.first.word,
+                definitions = inGameViewModel.quizData.first.definitions,
                 congratImage = {
                     AsyncImage(
                         model = R.drawable.congrat,
                         contentDescription = null,
                         imageLoader = inGameViewModel.gifLoader.gifEnabledLoader,
-                        modifier = Modifier.size(250.dp)
+                        modifier = Modifier.size(200.dp)
                     )
                 },
                 onQuitButtonClicked = navigateToMain,
-                onRetryButtonClicked = {/*TODO*/ }
+                onRetryButtonClicked = {
+                    coroutineScope.launch {
+                        inGameViewModel.sendEvent(InGameEvent.TryAgain)
+                    }
+                }
             )
         }
     }

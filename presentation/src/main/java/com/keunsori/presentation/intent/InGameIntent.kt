@@ -11,7 +11,7 @@ sealed interface InGameEvent : UiEvent {
     data class SelectLetter(val letter: Char) : InGameEvent
     data object ClickEnterButton : InGameEvent
     data object ClickBackspaceButton : InGameEvent
-    data object TryToQuitGame : InGameEvent
+    data object TryAgain : InGameEvent
 }
 
 sealed interface InGameUiState : UiState {
