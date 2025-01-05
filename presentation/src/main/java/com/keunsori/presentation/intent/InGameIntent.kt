@@ -3,6 +3,7 @@ package com.keunsori.presentation.intent
 import com.keunsori.presentation.model.KeyboardItem
 import com.keunsori.presentation.model.LetterMatchType
 import com.keunsori.presentation.model.UserInput
+import com.keunsori.presentation.utils.UiEffect
 import com.keunsori.presentation.utils.UiEvent
 import com.keunsori.presentation.utils.UiState
 
@@ -12,6 +13,10 @@ sealed interface InGameEvent : UiEvent {
     data object ClickBackspaceButton : InGameEvent
     data object TryAgain : InGameEvent
     data object GetQuizData : InGameEvent
+}
+
+sealed interface InGameEffect : UiEffect {
+    data class ShowToast(val message: String) : InGameEffect
 }
 
 sealed interface InGameUiState : UiState {

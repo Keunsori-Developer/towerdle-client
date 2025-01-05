@@ -11,8 +11,10 @@ import com.keunsori.domain.usecase.CheckAnswerUseCase
 import com.keunsori.domain.usecase.GetQuizInfoUseCase
 import com.keunsori.domain.usecase.IsExistWordUseCase
 import com.keunsori.domain.usecase.SendQuizResultUseCase
+import com.keunsori.presentation.intent.InGameEffect
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
+import com.keunsori.presentation.intent.MainEffect
 import com.keunsori.presentation.model.KeyboardItem
 import com.keunsori.presentation.model.LetterMatchType
 import com.keunsori.presentation.model.UserInput
@@ -61,8 +63,19 @@ class InGameViewModel @Inject constructor(
         .runningFold(InGameUiState.Loading, ::reduceState)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), InGameUiState.Loading)
 
-    suspend fun sendEvent(newEvent: InGameEvent) {
-        event.send(newEvent)
+    fun sendEvent(newEvent: InGameEvent) {
+        viewModelScope.launch {
+            event.send(newEvent)
+        }
+    }
+
+    private val effectChannel = Channel<InGameEffect>(Channel.BUFFERED)
+    val effectFlow = effectChannel.receiveAsFlow()
+
+    fun sendEffect(newEffect: InGameEffect) {
+        viewModelScope.launch {
+            effectChannel.send(newEffect)
+        }
     }
 
     private suspend fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
@@ -109,7 +122,10 @@ class InGameViewModel @Inject constructor(
         val isExist = withContext<Boolean>(Dispatchers.IO) {
             return@withContext isExistWordUseCase(userAnswer)
         }
-        if (!isExist) return this // 유효하지 않은 정답 입력 시 그냥 리턴
+        if (!isExist) {
+            sendEffect(InGameEffect.ShowToast("잘못된 단어를 입력했어요."))
+            return this
+        } // 유효하지 않은 정답 입력 시 그냥 리턴
 
         val newUserInputs = userInputsHistory.toMutableList()
         val answerResult = checkAnswerUseCase(userAnswer, answer)

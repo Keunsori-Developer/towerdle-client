@@ -1,5 +1,6 @@
 package com.keunsori.presentation.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,31 +8,54 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.keunsori.presentation.R
+import com.keunsori.presentation.intent.InGameEffect
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
+import com.keunsori.presentation.ui.ingame.GameGuideScreen
 import com.keunsori.presentation.ui.ingame.Keyboard
 import com.keunsori.presentation.ui.ingame.MenuBar
 import com.keunsori.presentation.ui.ingame.ResultScreen
 import com.keunsori.presentation.ui.ingame.UserInputScreen
+import com.keunsori.presentation.ui.util.Dialog
 import com.keunsori.presentation.viewmodel.InGameViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
-    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        inGameViewModel.effectFlow.collect {
+            when (it) {
+                is InGameEffect.ShowToast -> {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     val uiState = inGameViewModel.uiState.collectAsState()
 
+    var moveToBackDialogOpened by remember { mutableStateOf(false) }
+    var guideScreenOpened by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            MenuBar(onBackClicked = { /*TODO*/ }, onHelpButtonClicked = { /*TODO*/ })
+            MenuBar(
+                onBackClicked = { moveToBackDialogOpened = true },
+                onHelpButtonClicked = { guideScreenOpened = true })
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -64,15 +88,27 @@ fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
                 },
                 onQuitButtonClicked = navigateToMain,
                 onRetryButtonClicked = {
-                    coroutineScope.launch {
-                        inGameViewModel.sendEvent(InGameEvent.TryAgain)
-                    }
+                    inGameViewModel.sendEvent(InGameEvent.TryAgain)
                 }
             )
         }
     }
 
-
+    if (moveToBackDialogOpened) {
+        Dialog(
+            title = "게임 그만두기",
+            message = "진행 중인 게임을\n" +
+                    "정말로 종료하시겠어요?",
+            oneButtonOnly = false,
+            cancelButtonText = "그만두기",
+            confirmButtonText = "계속하기",
+            onDismissRequest = { moveToBackDialogOpened = false },
+            onConfirm = { moveToBackDialogOpened = false },
+            onCancel = { navigateToMain() })
+    }
+    if (guideScreenOpened) {
+        GameGuideScreen(onClose = { guideScreenOpened = false })
+    }
 }
 
 @Composable
@@ -85,8 +121,6 @@ private fun Loading() {
 
 @Composable
 private fun Main(uiState: InGameUiState.Main, inGameViewModel: InGameViewModel) {
-    val coroutineScope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -102,13 +136,13 @@ private fun Main(uiState: InGameUiState.Main, inGameViewModel: InGameViewModel) 
         Keyboard(
             keyboardItems = uiState.keyboardItems,
             onLetterClicked = {
-                coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.SelectLetter(it)) }
+                inGameViewModel.sendEvent(InGameEvent.SelectLetter(it))
             },
             onEnterClicked = {
-                coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.ClickEnterButton) }
+                inGameViewModel.sendEvent(InGameEvent.ClickEnterButton)
             },
             onBackspaceClicked = {
-                coroutineScope.launch { inGameViewModel.sendEvent(InGameEvent.ClickBackspaceButton) }
+                inGameViewModel.sendEvent(InGameEvent.ClickBackspaceButton)
             })
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.keunsori.presentation.ui.theme.AppTypography
@@ -32,10 +33,11 @@ fun Dialog(
     oneButtonOnly: Boolean,
     confirmButtonText: String,
     cancelButtonText: String? = null,
+    onDismissRequest: (() -> Unit),
     onConfirm: () -> Unit,
-    onCancel: (() -> Unit)? = null
+    onCancel: (() -> Unit)? = null,
 ) {
-    androidx.compose.ui.window.Dialog(onDismissRequest = { onCancel?.invoke() }) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = { onDismissRequest() }) {
         Column(
             modifier = Modifier
                 .width(320.dp)
@@ -51,7 +53,8 @@ fun Dialog(
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 message, style = AppTypography.titleMedium,
-                modifier = Modifier.padding(horizontal = 10.dp)
+                modifier = Modifier.padding(horizontal = 10.dp),
+                textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -96,5 +99,6 @@ private fun Dialog_Preview() {
         message = "message",
         oneButtonOnly = false,
         confirmButtonText = "확인",
+        onDismissRequest = {},
         onConfirm = { /*TODO*/ })
 }
