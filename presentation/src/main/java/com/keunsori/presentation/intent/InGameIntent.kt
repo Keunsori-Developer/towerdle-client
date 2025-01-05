@@ -7,11 +7,11 @@ import com.keunsori.presentation.utils.UiEvent
 import com.keunsori.presentation.utils.UiState
 
 sealed interface InGameEvent : UiEvent {
-    data class QuizLoaded(val quizSize: Int) : InGameEvent
     data class SelectLetter(val letter: Char) : InGameEvent
     data object ClickEnterButton : InGameEvent
     data object ClickBackspaceButton : InGameEvent
     data object TryAgain : InGameEvent
+    data object GetQuizData : InGameEvent
 }
 
 sealed interface InGameUiState : UiState {

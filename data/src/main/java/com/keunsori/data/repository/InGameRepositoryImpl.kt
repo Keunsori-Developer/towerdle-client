@@ -39,8 +39,8 @@ internal class InGameRepositoryImpl @Inject constructor(
      */
     override suspend fun isExistWord(input: CharArray): Boolean {
         return try {
-            val checkResult = remoteDataSource.checkWord(input.joinToString())
-            checkResult.definitions.isNotEmpty()
+            val checkResult = remoteDataSource.checkWord(input.joinToString(""))
+            checkResult.value.isNotEmpty()
         } catch (e: Exception) {
             false
         }

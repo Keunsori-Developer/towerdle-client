@@ -53,7 +53,7 @@ class InGameViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getQuizData()
+            sendEvent(InGameEvent.GetQuizData)
         }
     }
 
@@ -66,12 +66,9 @@ class InGameViewModel @Inject constructor(
     }
 
     private suspend fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
-        when (state) {
-            InGameUiState.Loading -> {
-                if (event is InGameEvent.QuizLoaded) return InGameUiState.Main.init(event.quizSize)
-            }
-
-            is InGameUiState.Main -> {
+        when (event) {
+            InGameEvent.GetQuizData, InGameEvent.TryAgain -> return getQuizData()
+            else -> {
                 val currentState = state as? InGameUiState.Main ?: return state
 
                 return when (event) {
@@ -79,24 +76,22 @@ class InGameViewModel @Inject constructor(
                     InGameEvent.ClickEnterButton -> currentState.handleEnterButton(quizData.second)
                     is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
                     InGameEvent.TryAgain -> {
-                        getQuizData()
-                        InGameUiState.Loading
+                        return getQuizData()
                     }
 
                     else -> return currentState
                 }
             }
         }
-        return state
     }
 
-    private suspend fun getQuizData() {
+    private suspend fun getQuizData(): InGameUiState {
         val level = savedStateHandle.get<String>("level") ?: QuizLevel.EASY.name
-        withContext(Dispatchers.IO) {
-            quizData = getQuizInfoUseCase(QuizLevel.valueOf(level))
-            Log.d(this.javaClass.simpleName, "quizInfo: ${quizData.first}")
-            sendEvent(InGameEvent.QuizLoaded(quizData.second.size))
+        quizData = withContext(Dispatchers.IO) {
+            getQuizInfoUseCase(QuizLevel.valueOf(level))
         }
+        Log.d(this.javaClass.simpleName, "quizInfo: ${quizData.first}")
+        return InGameUiState.Main.init(quizData.second.size)
     }
 
     private fun InGameUiState.Main.handleBackspaceButton(): InGameUiState.Main {
