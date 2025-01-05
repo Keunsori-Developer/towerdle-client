@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,7 +61,7 @@ fun UserInputScreen(
 @Composable
 private fun UserTrialRow(input: UserInput?, trialOnGoing: Boolean, quizSize: Int) {
     Row(
-        modifier = Modifier.height(45.dp),
+        modifier = Modifier.height(45.dp).wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         for (i in 0..<quizSize) {
@@ -70,7 +71,6 @@ private fun UserTrialRow(input: UserInput?, trialOnGoing: Boolean, quizSize: Int
                 null
             }
             Box(
-                modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 Image(

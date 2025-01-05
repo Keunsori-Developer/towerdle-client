@@ -26,11 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.keunsori.domain.entity.WordDefinition
 
 @Composable
 fun ResultScreen(
     isCorrectAnswer: Boolean,
     realAnswer: String,
+    definitions: List<WordDefinition>,
     congratImage: @Composable () -> Unit,
     onQuitButtonClicked: () -> Unit = {},
     onRetryButtonClicked: () -> Unit = {}
@@ -60,6 +62,16 @@ fun ResultScreen(
             }
 
             Text(realAnswer, fontSize = 50.sp, modifier = Modifier.padding(vertical = 30.dp))
+            Column(modifier = Modifier.padding(vertical = 20.dp, horizontal = 10.dp)) {
+                for (definition in definitions) {
+                    Text(
+                        definition.pos,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Text(definition.meanings.joinToString("\n"), fontSize = 15.sp)
+                }
+            }
             HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline)
 
 
@@ -104,11 +116,19 @@ private fun Button(text: String, color: Color, onClick: () -> Unit, modifier: Mo
 @Preview
 @Composable
 fun ResultScreen_Preview() {
-    ResultScreen(isCorrectAnswer = true, realAnswer = "안녕", {
-        Box(
-            modifier = Modifier
-                .size(30.dp)
-                .background(Color.Yellow)
-        )
-    }, {}, {})
+    ResultScreen(
+        isCorrectAnswer = true,
+        realAnswer = "안녕",
+        definitions = listOf(
+            WordDefinition("명사", listOf("사회나 국가가 안전하고 태평한 것.")),
+            WordDefinition("감탄사", listOf("사람들 사이에서 헤어지거나 만날 때 나누는 인사말."))
+
+        ),
+        congratImage = {
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .background(Color.Yellow)
+            )
+        }, {}, {})
 }

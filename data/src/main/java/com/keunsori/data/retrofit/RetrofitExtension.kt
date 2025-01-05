@@ -6,7 +6,6 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
@@ -22,7 +21,11 @@ suspend inline fun <Res : BaseResponse> Call<Res>.getResponse() = suspendCorouti
                 val stringToJson = JSONObject(response.errorBody()?.string()!!)
                 Log.d("HttpResponse", "fail: $stringToJson")
 
-                it.resumeWith(Result.failure(Exception(stringToJson.getString("errorCode"))))
+                it.resumeWith(
+                    Result.failure(
+                        ServiceException(response.code(), stringToJson.getString("errorCode"))
+                    )
+                )
             }
         }
 

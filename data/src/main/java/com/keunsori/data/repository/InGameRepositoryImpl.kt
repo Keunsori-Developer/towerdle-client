@@ -1,19 +1,49 @@
 package com.keunsori.data.repository
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.keunsori.data.datasource.MainRemoteDataSource
+import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
-import com.keunsori.domain.entity.QuizOption
+import com.keunsori.domain.entity.QuizLevel
+import com.keunsori.domain.entity.WordDefinition
 import com.keunsori.domain.repository.InGameRepository
 import javax.inject.Inject
 
 internal class InGameRepositoryImpl @Inject constructor(
-    private val remoteDataSource: MainRemoteDataSource) : InGameRepository {
+    private val remoteDataSource: MainRemoteDataSource
+) : InGameRepository {
     /**
-     * 출제할 단어를 가져옵니다.
+     * 출제할 단어 정보를 가져옵니다.
      */
-    override suspend fun requestQuizWord(option: QuizOption): String {
-        //TODO: id 값 저장
-        return remoteDataSource.getQuiz(option).value
+    override suspend fun requestQuizWord(level: QuizLevel): QuizInfo {
+        val result = remoteDataSource.getQuiz(level.name)
+        return with(result) {
+            QuizInfo(
+                uuid = uuid,
+                word = word.value,
+                length = word.length,
+                count = word.count,
+                definitions = Gson().fromJson(
+                    word.definitions,
+                    object : TypeToken<List<WordDefinition>>() {}.type
+                ),
+                maxAttempts = difficulty.maxAttempts
+            )
+        }
+    }
+
+    /**
+     * 사용자가 입력한 값이 존재하는 단어인지 확인합니다.
+     *
+     */
+    override suspend fun isExistWord(input: CharArray): Boolean {
+        return try {
+            val checkResult = remoteDataSource.checkWord(input.joinToString(""))
+            checkResult.value.isNotEmpty()
+        } catch (e: Exception) {
+            false
+        }
     }
 
     /**
@@ -22,7 +52,13 @@ internal class InGameRepositoryImpl @Inject constructor(
     override fun checkAnswer(input: CharArray, realAnswer: CharArray): QuizInputResult {
         val answerSize = realAnswer.size
         val inputSize = input.size
-        if (input.isEmpty()) return QuizInputResult(listOf(QuizInputResult.Element.empty), false)
+
+        // 1. 정답 입력한 자모 갯수 체크
+        if (input.size != realAnswer.size) return QuizInputResult(
+            isValidWord = false,
+            listOf(QuizInputResult.Element.empty),
+            false
+        )
 
         val elements = Array(answerSize) { QuizInputResult.Element.empty }
 
@@ -41,6 +77,18 @@ internal class InGameRepositoryImpl @Inject constructor(
             }
         }
 
-        return QuizInputResult(list = elements.toList(), correct = input.contentEquals(realAnswer))
+        return QuizInputResult(
+            isValidWord = true,
+            list = elements.toList(),
+            correct = input.contentEquals(realAnswer)
+        )
+    }
+
+    /**
+     * 퀴즈 결과를 서버로 전달합니다.
+     *
+     */
+    override suspend fun sendResult(uuid: String, attemptCount: Int, success: Boolean) {
+        remoteDataSource.sendQuizResult(uuid, attemptCount, success)
     }
 }

@@ -1,5 +1,9 @@
 package com.keunsori.presentation.ui.ingame
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,9 +39,21 @@ fun Keyboard(
     onEnterClicked: () -> Unit,
     onBackspaceClicked: () -> Unit
 ) {
+    val context = LocalContext.current
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    val vibrate: () -> Unit = {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(
+                VibrationEffect.createOneShot(
+                    500L,
+                    VibrationEffect.DEFAULT_AMPLITUDE
+                )
+            )
+        }
+    }
     val rowPaddingValue = 4
     val itemWidth = (LocalConfiguration.current.screenWidthDp - 16 - (rowPaddingValue * 9)) / 10
-    
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,24 +73,33 @@ fun Keyboard(
                     for (item in items) {
                         when (item) {
                             KeyboardItem.Backspace -> Backspace(
-                                onBackspaceClicked,
+                                {
+                                    vibrate()
+                                    onBackspaceClicked()
+                                },
                                 modifier = Modifier.size((itemWidth * 1.5).dp, 50.dp)
                             )
 
                             KeyboardItem.Enter -> Enter(
-                                onEnterClicked,
+                                {
+                                    vibrate()
+                                    onEnterClicked()
+                                },
                                 modifier = Modifier.size((itemWidth * 1.5).dp, 50.dp)
                             )
 
                             is KeyboardItem.Letter -> Letter(
                                 item.letter,
                                 item.matchType.color,
-                                onLetterClicked,
+                                {
+                                    vibrate()
+                                    onLetterClicked(it)
+                                },
                                 modifier = Modifier.size(itemWidth.dp, 50.dp)
                             )
 
                             KeyboardItem.Empty -> Empty(
-                                modifier = Modifier.size(itemWidth.dp,50.dp)
+                                modifier = Modifier.size(itemWidth.dp, 50.dp)
                             )
                         }
                     }

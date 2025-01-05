@@ -1,13 +1,20 @@
 package com.keunsori.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
+import com.keunsori.domain.entity.QuizLevel
 import com.keunsori.domain.usecase.CheckAnswerUseCase
-import com.keunsori.domain.usecase.GetQuizWordUseCase
+import com.keunsori.domain.usecase.GetQuizInfoUseCase
+import com.keunsori.domain.usecase.IsExistWordUseCase
+import com.keunsori.domain.usecase.SendQuizResultUseCase
+import com.keunsori.presentation.intent.InGameEffect
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
+import com.keunsori.presentation.intent.MainEffect
 import com.keunsori.presentation.model.KeyboardItem
 import com.keunsori.presentation.model.LetterMatchType
 import com.keunsori.presentation.model.UserInput
@@ -15,6 +22,7 @@ import com.keunsori.presentation.ui.theme.Color
 import com.keunsori.presentation.utils.GifLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,14 +30,15 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.ByteString.Companion.encodeUtf8
 import javax.inject.Inject
 
 @HiltViewModel
 class InGameViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val getQuizWordUseCase: GetQuizWordUseCase,
-    private val checkAnswerUseCase: CheckAnswerUseCase
+    private val getQuizInfoUseCase: GetQuizInfoUseCase,
+    private val isExistWordUseCase: IsExistWordUseCase,
+    private val checkAnswerUseCase: CheckAnswerUseCase,
+    private val sendQuizResultUseCase: SendQuizResultUseCase
 ) : ViewModel() {
 
     @Inject
@@ -38,20 +47,15 @@ class InGameViewModel @Inject constructor(
 
     /**
      * ex)
-     * first: 안녕
+     * first: QuizInfo(word = 안녕)
      * second: ㅇㅏㄴㄴㅕㅇ
      */
-    lateinit var answer: Pair<String, CharArray>
+    lateinit var quizData: Pair<QuizInfo, CharArray>
         private set
 
     init {
-        val level = savedStateHandle.get<Int>("level") ?: 1
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                answer = getQuizWordUseCase(level)
-                println("answer: ${answer.first}")
-                sendEvent(InGameEvent.QuizLoaded(answer.second.size))
-            }
+            sendEvent(InGameEvent.GetQuizData)
         }
     }
 
@@ -59,28 +63,48 @@ class InGameViewModel @Inject constructor(
         .runningFold(InGameUiState.Loading, ::reduceState)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), InGameUiState.Loading)
 
-    suspend fun sendEvent(newEvent: InGameEvent) {
-        event.send(newEvent)
+    fun sendEvent(newEvent: InGameEvent) {
+        viewModelScope.launch {
+            event.send(newEvent)
+        }
     }
 
-    private fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
-        when (state) {
-            InGameUiState.Loading -> {
-                if (event is InGameEvent.QuizLoaded) return InGameUiState.Main.init(event.quizSize)
-            }
+    private val effectChannel = Channel<InGameEffect>(Channel.BUFFERED)
+    val effectFlow = effectChannel.receiveAsFlow()
 
-            is InGameUiState.Main -> {
+    fun sendEffect(newEffect: InGameEffect) {
+        viewModelScope.launch {
+            effectChannel.send(newEffect)
+        }
+    }
+
+    private suspend fun reduceState(state: InGameUiState, event: InGameEvent): InGameUiState {
+        when (event) {
+            InGameEvent.GetQuizData, InGameEvent.TryAgain -> return getQuizData()
+            else -> {
                 val currentState = state as? InGameUiState.Main ?: return state
 
                 return when (event) {
                     InGameEvent.ClickBackspaceButton -> currentState.handleBackspaceButton()
-                    InGameEvent.ClickEnterButton -> currentState.handleEnterButton(answer.second)
+                    InGameEvent.ClickEnterButton -> currentState.handleEnterButton(quizData.second)
                     is InGameEvent.SelectLetter -> currentState.handleClickedLetter(event.letter)
+                    InGameEvent.TryAgain -> {
+                        return getQuizData()
+                    }
+
                     else -> return currentState
                 }
             }
         }
-        return state
+    }
+
+    private suspend fun getQuizData(): InGameUiState {
+        val level = savedStateHandle.get<String>("level") ?: QuizLevel.EASY.name
+        quizData = withContext(Dispatchers.IO) {
+            getQuizInfoUseCase(QuizLevel.valueOf(level))
+        }
+        Log.d(this.javaClass.simpleName, "quizInfo: ${quizData.first}")
+        return InGameUiState.Main.init(quizData.second.size)
     }
 
     private fun InGameUiState.Main.handleBackspaceButton(): InGameUiState.Main {
@@ -90,12 +114,21 @@ class InGameViewModel @Inject constructor(
         return this.copy(currentUserInput = updatedUserInput)
     }
 
-    private fun InGameUiState.Main.handleEnterButton(answer: CharArray): InGameUiState.Main {
+    private suspend fun InGameUiState.Main.handleEnterButton(answer: CharArray): InGameUiState.Main {
         if (currentUserInput.elements.size != quizSize) return this
 
+        val userAnswer = currentUserInput.elements.map { it.letter }.toCharArray()
+
+        val isExist = withContext<Boolean>(Dispatchers.IO) {
+            return@withContext isExistWordUseCase(userAnswer)
+        }
+        if (!isExist) {
+            sendEffect(InGameEffect.ShowToast("잘못된 단어를 입력했어요."))
+            return this
+        } // 유효하지 않은 정답 입력 시 그냥 리턴
+
         val newUserInputs = userInputsHistory.toMutableList()
-        val answerResult =
-            checkAnswerUseCase(currentUserInput.elements.map { it.letter }.toCharArray(), answer)
+        val answerResult = checkAnswerUseCase(userAnswer, answer)
 
         // 유저가 입력한 정답 체크
         val checkedUserInput = answerResult.list.map { e ->
@@ -144,13 +177,25 @@ class InGameViewModel @Inject constructor(
         }
 
         val isAnswer = answerResult.list.all { it.type == QuizInputResult.Type.MATCHED }
+        val gameFinished = currentTrialCount + 1 == this.maxTrialSize || isAnswer
+        if (gameFinished) {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    sendQuizResultUseCase.invoke(
+                        quizData.first.uuid,
+                        currentTrialCount + 1,
+                        isAnswer
+                    )
+                }
+            }
+        }
 
         return this.copy(
             currentTrialCount = currentTrialCount + 1,
             userInputsHistory = newUserInputs,
             currentUserInput = UserInput.empty,
             keyboardItems = newKeyboardItems,
-            isGameFinished = currentTrialCount + 1 == this.maxTrialSize || isAnswer,
+            isGameFinished = gameFinished,
             isCorrectAnswer = isAnswer
 
         )
