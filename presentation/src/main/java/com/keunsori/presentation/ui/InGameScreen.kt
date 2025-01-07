@@ -1,6 +1,7 @@
 package com.keunsori.presentation.ui
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,10 @@ fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
 
     var moveToBackDialogOpened by remember { mutableStateOf(false) }
     var guideScreenOpened by remember { mutableStateOf(false) }
+
+    BackHandler {
+        if (!moveToBackDialogOpened) moveToBackDialogOpened = true
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
