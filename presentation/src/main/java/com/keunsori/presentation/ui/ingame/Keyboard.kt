@@ -45,7 +45,7 @@ fun Keyboard(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(
                 VibrationEffect.createOneShot(
-                    500L,
+                    100L,
                     VibrationEffect.DEFAULT_AMPLITUDE
                 )
             )

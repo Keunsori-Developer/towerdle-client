@@ -71,6 +71,7 @@ private fun UserTrialRow(input: UserInput?, trialOnGoing: Boolean, quizSize: Int
                 null
             }
             Box(
+                modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -106,6 +107,6 @@ private fun UserInputScreen_Preview() {
         userInputHistory = history,
         currentUserInput = UserInput(elements = listOf(UserInput.Element('ㅇ'))),
         maxTrialSize = 6,
-        quizSize = 6
+        quizSize = 9
     )
 }
