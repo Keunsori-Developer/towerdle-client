@@ -45,7 +45,7 @@ sealed interface InGameUiState : UiState {
         val isCorrectAnswer: Boolean,
     ) : InGameUiState {
         companion object {
-            fun init(size: Int): Main {
+            fun init(quizSize: Int, maxTrialCount: Int): Main {
                 val lastLine = mutableListOf<KeyboardItem>()
                 lastLine.add(KeyboardItem.Enter)
                 lastLine.addAll(
@@ -69,9 +69,9 @@ sealed interface InGameUiState : UiState {
                     lastLine
                 )
                 return Main(
-                    quizSize = size,
+                    quizSize = quizSize,
                     0,
-                    6,
+                    maxTrialCount,
                     emptyList(),
                     UserInput(emptyList()),
                     letters,

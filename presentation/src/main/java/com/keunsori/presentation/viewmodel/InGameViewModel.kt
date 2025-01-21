@@ -104,7 +104,7 @@ class InGameViewModel @Inject constructor(
             getQuizInfoUseCase(QuizLevel.valueOf(level))
         }
         Log.d(this.javaClass.simpleName, "quizInfo: ${quizData.first}")
-        return InGameUiState.Main.init(quizData.second.size)
+        return InGameUiState.Main.init(quizData.second.size, quizData.first.maxAttempts)
     }
 
     private fun InGameUiState.Main.handleBackspaceButton(): InGameUiState.Main {
