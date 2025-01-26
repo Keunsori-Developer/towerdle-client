@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
@@ -46,7 +48,11 @@ fun ChooseLevelScreen(navigateToHome: () -> Unit, navigateToInGame: (QuizLevel) 
     ) {
         TopBar("시작하기", onBackButtonClicked = navigateToHome)
         Text("난이도 선택", fontSize = 24.sp)
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.weight(1f)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
             LevelItem(
                 iconRes = R.drawable.level_1_easy,
                 title = "쉬움",

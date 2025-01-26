@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -131,7 +133,10 @@ private fun Main(uiState: InGameUiState.Main, inGameViewModel: InGameViewModel) 
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
+        Text(
+            text = "${uiState.currentTrialCount + 1}번째 시도 (${uiState.currentTrialCount + 1}/${uiState.maxTrialSize})",
+            style = MaterialTheme.typography.labelMedium
+        )
         UserInputScreen(
             userInputHistory = uiState.userInputsHistory,
             currentUserInput = uiState.currentUserInput,

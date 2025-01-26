@@ -4,13 +4,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,35 +29,46 @@ import com.keunsori.presentation.R
 import com.keunsori.presentation.model.UserInput
 
 @Composable
-fun UserInputScreen(
+fun ColumnScope.UserInputScreen(
     userInputHistory: List<UserInput>,
     currentUserInput: UserInput,
     maxTrialSize: Int,
     quizSize: Int
 ) {
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(key1 = userInputHistory) {
+        lazyListState.animateScrollToItem(userInputHistory.size, -100)
+    }
     Box(
-        modifier = Modifier.padding(horizontal = 15.dp, vertical = 40.dp),
+        modifier = Modifier
+            .padding(vertical = 20.dp)
+            .fillMaxWidth()
+            .weight(2f),
         contentAlignment = Alignment.Center
     ) {
-        Column(
+        LazyColumn(
+            state = lazyListState,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 15.dp)
         ) {
-            for (input in userInputHistory) {
-                // 이미 입력 완료된 Row
-                UserTrialRow(input = input, trialOnGoing = false, quizSize = quizSize)
-            }
-            for (i in userInputHistory.size until maxTrialSize) {
-                if (i == userInputHistory.size) {
-                    // 현재 입력중인 Row
-                    UserTrialRow(
-                        input = currentUserInput,
-                        trialOnGoing = true,
-                        quizSize = quizSize
-                    )
-                } else {
-                    // 입력하지 않은 Row
-                    UserTrialRow(input = null, trialOnGoing = false, quizSize = quizSize)
+            items(maxTrialSize) { index ->
+                val input = userInputHistory.getOrNull(index)
+                input?.let {
+                    // 이미 입력 완료된 Row
+                    UserTrialRow(input = input, trialOnGoing = false, quizSize = quizSize)
+                } ?: run {
+                    if (index == userInputHistory.size) {
+                        // 현재 입력중인 Row
+                        UserTrialRow(
+                            input = currentUserInput,
+                            trialOnGoing = true,
+                            quizSize = quizSize
+                        )
+                    } else {
+                        // 입력하지 않은 Row
+                        UserTrialRow(input = null, trialOnGoing = false, quizSize = quizSize)
+                    }
                 }
             }
         }
@@ -62,7 +78,9 @@ fun UserInputScreen(
 @Composable
 private fun UserTrialRow(input: UserInput?, trialOnGoing: Boolean, quizSize: Int) {
     Row(
-        modifier = Modifier.height(45.dp).width(quizSize * 45.dp),
+        modifier = Modifier
+            .height(45.dp)
+            .width(quizSize * 45.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(0.dp)
     ) {
@@ -105,10 +123,12 @@ private fun UserInputScreen_Preview() {
             )
         )
     )
-    UserInputScreen(
-        userInputHistory = history,
-        currentUserInput = UserInput(elements = listOf(UserInput.Element('ㅇ'))),
-        maxTrialSize = 6,
-        quizSize = 9
-    )
+    Column {
+        UserInputScreen(
+            userInputHistory = history,
+            currentUserInput = UserInput(elements = listOf(UserInput.Element('ㅇ'))),
+            maxTrialSize = 6,
+            quizSize = 9
+        )
+    }
 }
