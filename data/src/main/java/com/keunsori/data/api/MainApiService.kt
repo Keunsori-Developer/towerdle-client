@@ -4,6 +4,7 @@ import com.keunsori.data.data.request.GetQuizWordRequest
 import com.keunsori.data.data.request.SendQuizResultRequest
 import com.keunsori.data.data.response.CheckWordResponse
 import com.keunsori.data.data.response.GetQuizWordResponse
+import com.keunsori.data.data.response.GetUserInfoResponse
 import com.keunsori.data.data.response.SendQuizResultResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -24,4 +25,7 @@ interface MainApiService {
         @Path("uuid") uuid: String,
         @Body request: SendQuizResultRequest
     ): Call<SendQuizResultResponse>
+
+    @GET("user")
+    fun getUserInfo(): Call<GetUserInfoResponse>
 }

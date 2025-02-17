@@ -10,9 +10,9 @@ package com.keunsori.domain.entity
  * VERYHARD :  3~4글자, 8~16개 자모음, 복합자모음 랜덤, 최대 6번 시도
  *
  */
-enum class QuizLevel {
-    EASY,
-    MEDIUM,
-    HARD,
-    VERYHARD
+enum class QuizLevel(val title: String) {
+    EASY("쉬움"),
+    MEDIUM("보통"),
+    HARD("어려움"),
+    VERYHARD("매우어려움")
 }

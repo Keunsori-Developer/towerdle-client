@@ -4,24 +4,23 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.keunsori.domain.entity.ApiResult
+import com.keunsori.domain.usecase.GetUserInfoUseCase
 import com.keunsori.domain.usecase.UserUseCase
 import com.keunsori.presentation.intent.LoginEffect
 import com.keunsori.presentation.intent.LoginEvent
 import com.keunsori.presentation.intent.LoginReducer
 import com.keunsori.presentation.intent.LoginState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : ViewModel() {
     // ui 상태
     private val reducer = LoginReducer(LoginState.init())
@@ -50,7 +49,12 @@ class LoginViewModel @Inject constructor(
                 }
 
                 is LoginEvent.GuestLogin -> {
-                    tryGuestLogin(guestId = event.ssaid)
+                    tryGuestLogin()
+                }
+
+                LoginEvent.GetUserInfo -> {
+                    val userInfo = getUserInfoUseCase.invoke()
+                    reducer.sendEvent(LoginEvent.SaveUserInfo(userInfo))
                 }
 
                 else -> {
@@ -76,6 +80,7 @@ class LoginViewModel @Inject constructor(
             sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
+                    sendEvent(LoginEvent.GetUserInfo)
                     sendEvent(
                         LoginEvent.SuccessGoogleLogin(
                             email = res.data.user.email,
@@ -102,6 +107,7 @@ class LoginViewModel @Inject constructor(
             sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
+                    sendEvent(LoginEvent.GetUserInfo)
                     sendEvent(
                         LoginEvent.SuccessGoogleLogin(
                             email = res.data.user.email,
@@ -118,7 +124,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun tryGuestLogin(guestId: String) {
+    private fun tryGuestLogin() {
         viewModelScope.launch {
             sendEvent(LoginEvent.StartLoading)
             Log.d("LoginViewModel", "tryGuestLogin")
@@ -128,6 +134,13 @@ class LoginViewModel @Inject constructor(
             when (res) {
                 is ApiResult.Success -> {
                     sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
+                    sendEvent(LoginEvent.GetUserInfo)
+                    sendEvent(
+                        LoginEvent.SuccessGuestLogin(
+                            email = res.data.user.email,
+                            name = res.data.user.name
+                        )
+                    )
                 }
 
                 is ApiResult.Fail -> {
@@ -146,10 +159,8 @@ class LoginViewModel @Inject constructor(
     fun logout(googleLogout: suspend () -> Unit) {
         viewModelScope.launch {
             // 로그아웃 (토큰 제거)
-            sendEvent(LoginEvent.StartLoading)
             userUseCase.logout()
-            sendEvent(LoginEvent.FinishLoading)
-            sendEvent(LoginEvent.Logout)
+            tryGuestLogin()
             // 구글 계정 앱 로그아웃
             googleLogout.invoke()
         }

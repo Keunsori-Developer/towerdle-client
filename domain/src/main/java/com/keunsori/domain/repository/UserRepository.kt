@@ -2,6 +2,7 @@ package com.keunsori.domain.repository
 
 import com.keunsori.domain.entity.LoginResult
 import com.keunsori.domain.entity.ApiResult
+import com.keunsori.domain.entity.UserInfo
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
@@ -22,4 +23,6 @@ interface UserRepository {
     suspend fun logout()
 
     fun getIsGoogleLoggedIn(): Flow<Boolean?>
+
+    suspend fun getUserInfo(): UserInfo
 }

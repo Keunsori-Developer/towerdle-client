@@ -54,7 +54,6 @@ class LocalDataSource @Inject constructor(
         }.map {
             it[REFRESH_TOKEN_KEY] ?: ""
         }.first()
-        Log.d("!!!!!!!!!!!!!", refreshToken)
     }
 
     suspend fun setRefreshToken(

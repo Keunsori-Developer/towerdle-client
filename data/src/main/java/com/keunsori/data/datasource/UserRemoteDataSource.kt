@@ -6,6 +6,7 @@ import com.keunsori.data.api.AuthApiService
 import com.keunsori.data.data.request.GuestRequest
 import com.keunsori.data.data.request.OauthRequest
 import com.keunsori.data.data.request.RefreshRequest
+import com.keunsori.data.data.response.GetUserInfoResponse
 import com.keunsori.data.data.response.GuestResponse
 import com.keunsori.data.data.response.OauthResponse
 import com.keunsori.data.retrofit.getResponse
@@ -27,5 +28,9 @@ class UserRemoteDataSource @Inject constructor(
 
     suspend fun refreshAccessToken(refreshRequest: RefreshRequest): OauthResponse {
         return authApiService.refreshAccessToken(refreshRequest).getResponse()
+    }
+
+    suspend fun getUserInfo(): GetUserInfoResponse {
+        return mainApiService.getUserInfo().getResponse()
     }
 }

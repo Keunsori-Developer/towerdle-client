@@ -18,7 +18,6 @@ import com.keunsori.presentation.R
 
 suspend fun googleLogin(credentialManager: CredentialManager, context: Context, onSuccess: (String) -> Unit) {
     val tag = "GOOGLE_LOGIN"
-    Log.d(tag, context.getString(R.string.google_cloud_server_client_id))
 
     val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(false) // 로그인했던 계정만 표시 여부 -> true일 때 계정이 없으면 NoCredentialException 발생
