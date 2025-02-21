@@ -46,6 +46,7 @@ import com.keunsori.presentation.R
 import com.keunsori.presentation.intent.LoginEffect
 import com.keunsori.presentation.intent.LoginEvent
 import com.keunsori.presentation.intent.LoginState
+import com.keunsori.presentation.ui.theme.onPrimaryContainerDark
 import com.keunsori.presentation.ui.util.TopBar
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.googleLogin
@@ -214,6 +215,7 @@ fun LoginStateScreen(
                     color = Color.Black,
                     shape = RoundedCornerShape(10.dp)
                 )
+                .background(color = onPrimaryContainerDark)
                 .padding(10.dp),
         ) {
             content.invoke()

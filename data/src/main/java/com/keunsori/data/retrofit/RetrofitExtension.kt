@@ -18,12 +18,14 @@ suspend inline fun <Res : BaseResponse> Call<Res>.getResponse() = suspendCorouti
                 Log.d("HttpResponse", "response: $res")
                 it.resumeWith(Result.success(res))
             } else {
-                val stringToJson = JSONObject(response.errorBody()?.string()!!)
+                val errorBody = response.errorBody()?.string()
+                val stringToJson = if (!errorBody.isNullOrEmpty()) JSONObject(errorBody) else JSONObject()
+
                 Log.d("HttpResponse", "fail: $stringToJson")
 
                 it.resumeWith(
                     Result.failure(
-                        ServiceException(response.code(), stringToJson.getString("errorCode"))
+                        ServiceException(response.code(), stringToJson.optString("message", "UnknownError"))
                     )
                 )
             }
