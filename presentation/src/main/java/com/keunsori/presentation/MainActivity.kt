@@ -89,8 +89,12 @@ fun Navigation(
                     Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
 
-                is LoginEffect.MoveToMain -> {
+                LoginEffect.MoveToMain -> {
                     navHostController.navigate(Navigation.Main.route)
+                }
+
+                LoginEffect.Finish -> {
+                    onFinish.invoke()
                 }
             }
         }

@@ -24,5 +24,5 @@ interface UserRepository {
 
     fun getIsGoogleLoggedIn(): Flow<Boolean?>
 
-    suspend fun getUserInfo(): UserInfo
+    suspend fun getUserInfo(): ApiResult<UserInfo>
 }

@@ -53,8 +53,7 @@ class LoginViewModel @Inject constructor(
                 }
 
                 LoginEvent.GetUserInfo -> {
-                    val userInfo = getUserInfoUseCase.invoke()
-                    reducer.sendEvent(LoginEvent.SaveUserInfo(userInfo))
+                    getUserInfo()
                 }
 
                 else -> {
@@ -77,7 +76,6 @@ class LoginViewModel @Inject constructor(
             Log.d("LoginViewModel", "tryGoogleLogin")
             val res =
                 userUseCase.autoGoogleLogin() // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
-            sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
                     sendEvent(LoginEvent.GetUserInfo)
@@ -91,10 +89,11 @@ class LoginViewModel @Inject constructor(
                 }
 
                 is ApiResult.Fail -> {
-                    // api errorBody의 message를 그대로 반환하므로 앱 내의 string resource를 활용하는 쪽으로 변경 고려
-                    sendEffect(LoginEffect.ShowToast(res.exception.message.toString()))
+                    sendEffect(LoginEffect.ShowToast("구글로그인에 실패하여 게스트로그인을 시도합니다."))
+                    sendEvent(LoginEvent.GuestLogin)
                 }
             }
+            sendEvent(LoginEvent.FinishLoading)
         }
     }
 
@@ -104,7 +103,6 @@ class LoginViewModel @Inject constructor(
             Log.d("LoginViewModel", "tryGoogleLogin")
             val res =
                 userUseCase.tryGoogleLogin(googleIdToken) // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
-            sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
                     sendEvent(LoginEvent.GetUserInfo)
@@ -117,10 +115,10 @@ class LoginViewModel @Inject constructor(
                 }
 
                 is ApiResult.Fail -> {
-                    // api errorBody의 message를 그대로 반환하므로 앱 내의 string resource를 활용하는 쪽으로 변경 고려
                     sendEffect(LoginEffect.ShowToast(res.exception.message.toString()))
                 }
             }
+            sendEvent(LoginEvent.FinishLoading)
         }
     }
 
@@ -130,7 +128,6 @@ class LoginViewModel @Inject constructor(
             Log.d("LoginViewModel", "tryGuestLogin")
             val res =
                 userUseCase.tryGuestLogin() // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
-            sendEvent(LoginEvent.FinishLoading)
             when (res) {
                 is ApiResult.Success -> {
                     sendEffect(LoginEffect.MoveToMain) // 메인 화면 이동
@@ -144,13 +141,28 @@ class LoginViewModel @Inject constructor(
                 }
 
                 is ApiResult.Fail -> {
-                    // api errorBody의 message를 그대로 반환하므로 앱 내의 string resource를 활용하는 쪽으로 변경 고려
                     sendEffect(LoginEffect.ShowToast(res.exception.message.toString()))
                 }
             }
+            sendEvent(LoginEvent.FinishLoading)
         }
     }
 
+    private fun getUserInfo(){
+        viewModelScope.launch {
+            sendEvent(LoginEvent.StartLoading)
+            when (val res = getUserInfoUseCase.invoke()) {
+                is ApiResult.Success -> {
+                    sendEvent(LoginEvent.SaveUserInfo(res.data))
+                }
+
+                is ApiResult.Fail -> {
+                    sendEffect(LoginEffect.ShowToast("정보를 받아오지 못했습니다."))
+                }
+            }
+            sendEvent(LoginEvent.FinishLoading)
+        }
+    }
 
     fun getIsGoogleLoggedIn(): Flow<Boolean?> {
         return userUseCase.getIsGoogleLoggedIn()

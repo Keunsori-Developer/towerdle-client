@@ -134,67 +134,75 @@ class UserRepositoryImpl @Inject constructor(
         return localDataSource.isGoogleLoggedIn
     }
 
-    override suspend fun getUserInfo(): UserInfo {
+    override suspend fun getUserInfo(): ApiResult<UserInfo> {
         val userInfo = userRemoteDataSource.getUserInfo()
-        return UserInfo(
-            solveCount = userInfo.quizStats.solveCount,
-            lastSolve = userInfo.quizStats.lastSolve ?: "",
-            detailedStats = mapOf(
-                QuizLevel.EASY to if (userInfo.quizStats.details.easy == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
-                    solvedCnt = userInfo.quizStats.details.easy.solvedCnt,
-                    totalCnt = userInfo.quizStats.details.easy.totalCnt,
-                    solvedAttemptsStats = listOf(
-                        userInfo.quizStats.details.easy.solvedAttemptsStats.firstAttempt,
-                        userInfo.quizStats.details.easy.solvedAttemptsStats.secondAttempt,
-                        userInfo.quizStats.details.easy.solvedAttemptsStats.thirdAttempt,
-                        userInfo.quizStats.details.easy.solvedAttemptsStats.fourthAttempt,
-                        userInfo.quizStats.details.easy.solvedAttemptsStats.fifthAttempt,
-                        userInfo.quizStats.details.easy.solvedAttemptsStats.sixthAttempt,
-                        userInfo.quizStats.details.easy.solvedAttemptsStats.seventhAttempt
-                    ),
-                    solveStreak = userInfo.quizStats.details.easy.solveStreak
-                ),
-                QuizLevel.MEDIUM to if (userInfo.quizStats.details.medium == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
-                    solvedCnt = userInfo.quizStats.details.medium.solvedCnt,
-                    totalCnt = userInfo.quizStats.details.medium.totalCnt,
-                    solvedAttemptsStats = listOf(
-                        userInfo.quizStats.details.medium.solvedAttemptsStats.firstAttempt,
-                        userInfo.quizStats.details.medium.solvedAttemptsStats.secondAttempt,
-                        userInfo.quizStats.details.medium.solvedAttemptsStats.thirdAttempt,
-                        userInfo.quizStats.details.medium.solvedAttemptsStats.fourthAttempt,
-                        userInfo.quizStats.details.medium.solvedAttemptsStats.fifthAttempt,
-                        userInfo.quizStats.details.medium.solvedAttemptsStats.sixthAttempt
-                    ),
-                    solveStreak = userInfo.quizStats.details.medium.solveStreak
-                ),
-                QuizLevel.HARD to if (userInfo.quizStats.details.hard == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
-                    solvedCnt = userInfo.quizStats.details.hard.solvedCnt,
-                    totalCnt = userInfo.quizStats.details.hard.totalCnt,
-                    solvedAttemptsStats = listOf(
-                        userInfo.quizStats.details.hard.solvedAttemptsStats.firstAttempt,
-                        userInfo.quizStats.details.hard.solvedAttemptsStats.secondAttempt,
-                        userInfo.quizStats.details.hard.solvedAttemptsStats.thirdAttempt,
-                        userInfo.quizStats.details.hard.solvedAttemptsStats.fourthAttempt,
-                        userInfo.quizStats.details.hard.solvedAttemptsStats.fifthAttempt,
-                        userInfo.quizStats.details.hard.solvedAttemptsStats.sixthAttempt
-                    ),
-                    solveStreak = userInfo.quizStats.details.hard.solveStreak
-                ),
-                QuizLevel.VERYHARD to if (userInfo.quizStats.details.veryHard == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
-                    solvedCnt = userInfo.quizStats.details.veryHard.solvedCnt,
-                    totalCnt = userInfo.quizStats.details.veryHard.totalCnt,
-                    solvedAttemptsStats = listOf(
-                        userInfo.quizStats.details.veryHard.solvedAttemptsStats.firstAttempt,
-                        userInfo.quizStats.details.veryHard.solvedAttemptsStats.secondAttempt,
-                        userInfo.quizStats.details.veryHard.solvedAttemptsStats.thirdAttempt,
-                        userInfo.quizStats.details.veryHard.solvedAttemptsStats.fourthAttempt,
-                        userInfo.quizStats.details.veryHard.solvedAttemptsStats.fifthAttempt,
-                        userInfo.quizStats.details.veryHard.solvedAttemptsStats.sixthAttempt
-                    ),
-                    solveStreak = userInfo.quizStats.details.veryHard.solveStreak
+        return try {
+            ApiResult.Success(
+                data = UserInfo(
+                    solveCount = userInfo.quizStats.solveCount,
+                    lastSolve = userInfo.quizStats.lastSolve ?: "",
+                    detailedStats = mapOf(
+                        QuizLevel.EASY to if (userInfo.quizStats.details.easy == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
+                            solvedCnt = userInfo.quizStats.details.easy.solvedCnt,
+                            totalCnt = userInfo.quizStats.details.easy.totalCnt,
+                            solvedAttemptsStats = listOf(
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.firstAttempt,
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.secondAttempt,
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.thirdAttempt,
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.fourthAttempt,
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.fifthAttempt,
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.sixthAttempt,
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.seventhAttempt
+                            ),
+                            solveStreak = userInfo.quizStats.details.easy.solveStreak
+                        ),
+                        QuizLevel.MEDIUM to if (userInfo.quizStats.details.medium == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
+                            solvedCnt = userInfo.quizStats.details.medium.solvedCnt,
+                            totalCnt = userInfo.quizStats.details.medium.totalCnt,
+                            solvedAttemptsStats = listOf(
+                                userInfo.quizStats.details.medium.solvedAttemptsStats.firstAttempt,
+                                userInfo.quizStats.details.medium.solvedAttemptsStats.secondAttempt,
+                                userInfo.quizStats.details.medium.solvedAttemptsStats.thirdAttempt,
+                                userInfo.quizStats.details.medium.solvedAttemptsStats.fourthAttempt,
+                                userInfo.quizStats.details.medium.solvedAttemptsStats.fifthAttempt,
+                                userInfo.quizStats.details.medium.solvedAttemptsStats.sixthAttempt
+                            ),
+                            solveStreak = userInfo.quizStats.details.medium.solveStreak
+                        ),
+                        QuizLevel.HARD to if (userInfo.quizStats.details.hard == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
+                            solvedCnt = userInfo.quizStats.details.hard.solvedCnt,
+                            totalCnt = userInfo.quizStats.details.hard.totalCnt,
+                            solvedAttemptsStats = listOf(
+                                userInfo.quizStats.details.hard.solvedAttemptsStats.firstAttempt,
+                                userInfo.quizStats.details.hard.solvedAttemptsStats.secondAttempt,
+                                userInfo.quizStats.details.hard.solvedAttemptsStats.thirdAttempt,
+                                userInfo.quizStats.details.hard.solvedAttemptsStats.fourthAttempt,
+                                userInfo.quizStats.details.hard.solvedAttemptsStats.fifthAttempt,
+                                userInfo.quizStats.details.hard.solvedAttemptsStats.sixthAttempt
+                            ),
+                            solveStreak = userInfo.quizStats.details.hard.solveStreak
+                        ),
+                        QuizLevel.VERYHARD to if (userInfo.quizStats.details.veryHard == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
+                            solvedCnt = userInfo.quizStats.details.veryHard.solvedCnt,
+                            totalCnt = userInfo.quizStats.details.veryHard.totalCnt,
+                            solvedAttemptsStats = listOf(
+                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.firstAttempt,
+                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.secondAttempt,
+                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.thirdAttempt,
+                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.fourthAttempt,
+                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.fifthAttempt,
+                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.sixthAttempt
+                            ),
+                            solveStreak = userInfo.quizStats.details.veryHard.solveStreak
+                        )
+                    )
                 )
             )
-        )
+        } catch (e: Exception) {
+            ApiResult.Fail(
+                exception = e
+            )
+        }
     }
 
     override suspend fun logout() {

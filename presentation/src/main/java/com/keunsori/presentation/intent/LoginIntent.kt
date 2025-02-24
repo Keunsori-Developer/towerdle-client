@@ -23,7 +23,7 @@ data class LoginState(
 
 sealed class LoginEvent : UiEvent {
     data object AutoGoogleLogin : LoginEvent()
-    data class GuestLogin(val ssaid: String) : LoginEvent()
+    data object GuestLogin : LoginEvent()
     data class GoogleLogin(val idToken: String) : LoginEvent()
     data object GetUserInfo : LoginEvent()
     data class SaveUserInfo(val userInfo: UserInfo) : LoginEvent()
@@ -42,6 +42,8 @@ sealed class LoginEffect : UiEffect {
     data class ShowToast(val message: String) : LoginEffect()
 
     data object MoveToMain : LoginEffect()
+
+    data object Finish : LoginEffect()
 }
 
 class LoginReducer(state: LoginState) : Reducer<LoginState, LoginEvent>(state) {

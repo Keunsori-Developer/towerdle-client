@@ -2,6 +2,7 @@ package com.keunsori.data.retrofit
 
 import android.util.Log
 import com.keunsori.data.data.response.BaseResponse
+import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -19,15 +20,22 @@ suspend inline fun <Res : BaseResponse> Call<Res>.getResponse() = suspendCorouti
                 it.resumeWith(Result.success(res))
             } else {
                 val errorBody = response.errorBody()?.string()
-                val stringToJson = if (!errorBody.isNullOrEmpty()) JSONObject(errorBody) else JSONObject()
 
-                Log.d("HttpResponse", "fail: $stringToJson")
-
-                it.resumeWith(
-                    Result.failure(
-                        ServiceException(response.code(), stringToJson.optString("message", "UnknownError"))
+                try {
+                    val stringToJson = if (!errorBody.isNullOrEmpty()) JSONObject(errorBody) else JSONObject()
+                    Log.d("HttpResponse", "fail: $stringToJson")
+                    it.resumeWith(
+                        Result.failure(
+                            ServiceException(response.code(), stringToJson.optString("message", "ServerError"))
+                        )
                     )
-                )
+                } catch (e: Exception) {
+                    it.resumeWith(
+                        Result.failure(
+                            ServiceException(response.code(), "ServerError")
+                        )
+                    )
+                }
             }
         }
 

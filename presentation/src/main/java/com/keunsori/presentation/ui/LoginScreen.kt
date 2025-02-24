@@ -35,13 +35,6 @@ import kotlinx.coroutines.launch
 @SuppressLint("HardwareIds")
 @Composable
 fun LoginScreen(viewModel: LoginViewModel) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val state = viewModel.uiState.collectAsState().value
-    val credentialManager = LocalCredentialManagerController.current.credentialManager
-
-    val ssaid = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-
     val isGoogleLoggedIn =
         viewModel.getIsGoogleLoggedIn().collectAsState(initial = null).value
 
@@ -51,7 +44,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
             if (isGoogleLoggedIn) {
                 viewModel.sendEvent(LoginEvent.AutoGoogleLogin)
             } else {
-                viewModel.sendEvent(LoginEvent.GuestLogin(ssaid))
+                viewModel.sendEvent(LoginEvent.GuestLogin)
             }
         }
     }
