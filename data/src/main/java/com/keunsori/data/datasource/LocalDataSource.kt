@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -23,7 +24,7 @@ class LocalDataSource @Inject constructor(
         val REFRESH_TOKEN_KEY = stringPreferencesKey("REFRESH_TOKEN_KEY")
         val IS_GOOGLE_LOGGED_IN_KEY = booleanPreferencesKey("IS_GOOGLE_LOGGED_IN")
         val GUEST_ID_TOKEN = stringPreferencesKey("GUEST_ID_TOKEN")
-
+        val CHALLENGE_MODE_DATA = stringSetPreferencesKey("CHALLENGE_MODE_DATA")
     }
 
     private var _refreshToken: String = ""
@@ -99,5 +100,32 @@ class LocalDataSource @Inject constructor(
         }
         setRefreshToken("")
         setAccessToken("")
+    }
+
+    suspend fun updateChallengeModeData(jsonString: String?) {
+        try {
+            dataStore.edit { preferences ->
+                if (jsonString == null) {
+                    preferences.remove(CHALLENGE_MODE_DATA)
+                } else {
+                    // 기존에 저장된 Set<String> 가져오기 (없으면 빈 Set 반환)
+                    val currentSet = preferences[CHALLENGE_MODE_DATA] ?: emptySet()
+
+                    // 새로운 String을 Set에 추가
+                    val updatedSet = currentSet + jsonString
+
+                    // 업데이트된 Set 저장
+                    preferences[CHALLENGE_MODE_DATA] = updatedSet
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun getChallengeModeData(): Flow<Set<String>?> {
+        return dataStore.data.map { preferences ->
+            preferences[CHALLENGE_MODE_DATA]
+        }
     }
 }

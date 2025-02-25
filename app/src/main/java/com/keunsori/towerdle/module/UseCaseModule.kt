@@ -4,6 +4,7 @@ import com.keunsori.data.repository.UserRepositoryImpl
 import com.keunsori.domain.repository.InGameRepository
 import com.keunsori.domain.repository.UserRepository
 import com.keunsori.domain.usecase.CheckAnswerUseCase
+import com.keunsori.domain.usecase.GetChallengeDataUseCase
 import com.keunsori.domain.usecase.GetQuizInfoUseCase
 import com.keunsori.domain.usecase.GetUserInfoUseCase
 import com.keunsori.domain.usecase.IsExistWordUseCase
@@ -47,5 +48,10 @@ object UseCaseModule {
     @Provides
     fun provideIsExistWordUseCase(inGameRepository: InGameRepository): IsExistWordUseCase {
         return IsExistWordUseCase(inGameRepository)
+    }
+
+    @Provides
+    fun provideGetChallengeDataUseCase(inGameRepository: InGameRepository): GetChallengeDataUseCase {
+        return GetChallengeDataUseCase(inGameRepository)
     }
 }

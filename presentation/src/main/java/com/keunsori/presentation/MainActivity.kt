@@ -21,17 +21,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.keunsori.domain.entity.QuizLevel
 import com.keunsori.presentation.intent.LoginEffect
 import com.keunsori.presentation.intent.MainEffect
+import com.keunsori.presentation.ui.ChallengeGuideScreen
 import com.keunsori.presentation.ui.InGameScreen
 import com.keunsori.presentation.ui.LoginScreen
 import com.keunsori.presentation.ui.MainScreen
 import com.keunsori.presentation.ui.SettingScreen
-import com.keunsori.presentation.ui.main.ChooseLevelScreen
+import com.keunsori.presentation.ui.ChooseLevelScreen
 import com.keunsori.presentation.ui.theme.TowerdleTheme
 import com.keunsori.presentation.utils.LocalCredentialManagerController
 import com.keunsori.presentation.utils.MyCredentialManagerController
 import com.keunsori.presentation.utils.Navigation
+import com.keunsori.presentation.viewmodel.ChallengeGuideViewModel
 import com.keunsori.presentation.viewmodel.InGameViewModel
 import com.keunsori.presentation.viewmodel.LoginViewModel
 import com.keunsori.presentation.viewmodel.MainViewModel
@@ -150,6 +153,15 @@ fun Navigation(
                 })
             }
 
+            composable(route = Navigation.Main_ChallengeGuide.route) {
+                val viewModel = hiltViewModel<ChallengeGuideViewModel>()
+                ChallengeGuideScreen(viewModel = viewModel, navigateToHome = {
+                    navHostController.popBackStack()
+                }) {
+
+                }
+            }
+
             composable(
                 route = Navigation.Game.route, arguments = listOf(
                     navArgument("level") {
@@ -157,6 +169,8 @@ fun Navigation(
                     },
                 )
             ) { navBackStackEntry ->
+                val isChallenge =
+                    navBackStackEntry.arguments?.get("level") == QuizLevel.CHALLENGE.name
                 /* Extracting the level from the route */
                 val inGameViewModel = hiltViewModel<InGameViewModel>()
                 InGameScreen(
