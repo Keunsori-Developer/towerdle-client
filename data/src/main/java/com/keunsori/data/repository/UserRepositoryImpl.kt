@@ -182,18 +182,18 @@ class UserRepositoryImpl @Inject constructor(
                             ),
                             solveStreak = userInfo.quizStats.details.hard.solveStreak
                         ),
-                        QuizLevel.VERYHARD to if (userInfo.quizStats.details.veryHard == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
-                            solvedCnt = userInfo.quizStats.details.veryHard.solvedCnt,
-                            totalCnt = userInfo.quizStats.details.veryHard.totalCnt,
+                        QuizLevel.CHALLENGE to if (userInfo.quizStats.details.challenge == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
+                            solvedCnt = userInfo.quizStats.details.challenge.solvedCnt,
+                            totalCnt = userInfo.quizStats.details.challenge.totalCnt,
                             solvedAttemptsStats = listOf(
-                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.firstAttempt,
-                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.secondAttempt,
-                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.thirdAttempt,
-                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.fourthAttempt,
-                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.fifthAttempt,
-                                userInfo.quizStats.details.veryHard.solvedAttemptsStats.sixthAttempt
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.firstAttempt,
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.secondAttempt,
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.thirdAttempt,
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.fourthAttempt,
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.fifthAttempt,
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.sixthAttempt
                             ),
-                            solveStreak = userInfo.quizStats.details.veryHard.solveStreak
+                            solveStreak = userInfo.quizStats.details.challenge.solveStreak
                         )
                     )
                 )

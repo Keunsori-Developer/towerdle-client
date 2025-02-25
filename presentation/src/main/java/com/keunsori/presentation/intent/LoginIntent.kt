@@ -109,7 +109,7 @@ class LoginReducer(state: LoginState) : Reducer<LoginState, LoginEvent>(state) {
                                 if(event.isForward){
                                     QuizLevel.MEDIUM
                                 } else {
-                                    QuizLevel.VERYHARD
+                                    QuizLevel.CHALLENGE
                                 }
 
                             }
@@ -122,12 +122,12 @@ class LoginReducer(state: LoginState) : Reducer<LoginState, LoginEvent>(state) {
                             }
                             QuizLevel.HARD -> {
                                 if(event.isForward){
-                                    QuizLevel.VERYHARD
+                                    QuizLevel.CHALLENGE
                                 } else {
                                     QuizLevel.MEDIUM
                                 }
                             }
-                            QuizLevel.VERYHARD -> {
+                            QuizLevel.CHALLENGE -> {
                                 if(event.isForward){
                                     QuizLevel.EASY
                                 } else {
