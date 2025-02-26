@@ -8,7 +8,7 @@ data class GetQuizWordResponse(
 
 data class QuizWordDto(
     val value: String,
-    val definitions: String,
+    val definitions: String?,
     val length: Int,
     val count: Int
 )
@@ -18,7 +18,5 @@ data class QuizDifficultyDto(
     val lengthMax: Int,
     val countMin: Int,
     val countMax: Int,
-    val complexVowel: Boolean,
-    val complexConsonant: Boolean,
     val maxAttempts: Int
 )

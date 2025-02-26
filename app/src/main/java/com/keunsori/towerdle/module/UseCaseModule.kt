@@ -1,13 +1,13 @@
 package com.keunsori.towerdle.module
 
-import com.keunsori.data.repository.UserRepositoryImpl
 import com.keunsori.domain.repository.InGameRepository
 import com.keunsori.domain.repository.UserRepository
 import com.keunsori.domain.usecase.CheckAnswerUseCase
-import com.keunsori.domain.usecase.GetChallengeDataUseCase
+import com.keunsori.domain.usecase.GetTodayChallengeDataUseCase
 import com.keunsori.domain.usecase.GetQuizInfoUseCase
 import com.keunsori.domain.usecase.GetUserInfoUseCase
 import com.keunsori.domain.usecase.IsExistWordUseCase
+import com.keunsori.domain.usecase.SaveChallengeUserInputUseCase
 import com.keunsori.domain.usecase.SendQuizResultUseCase
 import com.keunsori.domain.usecase.UserUseCase
 import dagger.Module
@@ -51,7 +51,12 @@ object UseCaseModule {
     }
 
     @Provides
-    fun provideGetChallengeDataUseCase(inGameRepository: InGameRepository): GetChallengeDataUseCase {
-        return GetChallengeDataUseCase(inGameRepository)
+    fun provideGetTodayChallengeDataUseCase(inGameRepository: InGameRepository): GetTodayChallengeDataUseCase {
+        return GetTodayChallengeDataUseCase(inGameRepository)
+    }
+
+    @Provides
+    fun provideSaveChallengeUserInputUserCase(inGameRepository: InGameRepository): SaveChallengeUserInputUseCase {
+        return SaveChallengeUserInputUseCase(inGameRepository)
     }
 }

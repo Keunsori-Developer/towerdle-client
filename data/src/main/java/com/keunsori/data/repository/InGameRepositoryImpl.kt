@@ -34,10 +34,12 @@ internal class InGameRepositoryImpl @Inject constructor(
                 word = word.value,
                 length = word.length,
                 count = word.count,
-                definitions = Gson().fromJson(
-                    word.definitions,
-                    object : TypeToken<List<WordDefinition>>() {}.type
-                ),
+                definitions = word.definitions?.let {
+                    Gson().fromJson(
+                        it,
+                        object : TypeToken<List<WordDefinition>>() {}.type
+                    )
+                } ?: emptyList(),
                 maxAttempts = difficulty.maxAttempts
             )
         }
@@ -107,7 +109,7 @@ internal class InGameRepositoryImpl @Inject constructor(
      * 오늘 날짜에 해당하는 챌린지 모드 데이터를 가져옵니다.
      *
      */
-    override suspend fun requestChallengeData(timestamp: Long): ChallengeModeData {
+    override suspend fun requestTodayChallengeData(timestamp: Long): ChallengeModeData {
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).format(timestamp)
         val savedData = localDataSource.getChallengeModeData().first()?.map {
             Gson().fromJson(it, ChallengeModeRawData::class.java)
@@ -123,10 +125,12 @@ internal class InGameRepositoryImpl @Inject constructor(
                     word = word.value,
                     length = word.length,
                     count = word.count,
-                    definitions = Gson().fromJson(
-                        word.definitions,
-                        object : TypeToken<List<WordDefinition>>() {}.type
-                    ),
+                    definitions = word.definitions?.let {
+                        Gson().fromJson(
+                            it,
+                            object : TypeToken<List<WordDefinition>>() {}.type
+                        )
+                    } ?: emptyList(),
                     maxAttempts = difficulty.maxAttempts
                 )
             }
@@ -137,14 +141,11 @@ internal class InGameRepositoryImpl @Inject constructor(
             } else {
                 ChallengeModeData.InGoing(
                     savedData.map {
-                        QuizInputResult(
-                            false,
-                            it.input.map { input ->
-                                QuizInputResult.Element(
-                                    letter = input.letter,
-                                    type = QuizInputResult.Type.entries.first { t -> t.ordinal == input.type })
-                            }, false
-                        )
+                        it.input.map { input ->
+                            QuizInputResult.Element(
+                                letter = input.letter,
+                                type = QuizInputResult.Type.entries.first { t -> t.ordinal == input.type })
+                        }
                     }, date = todayDate, quizInfo = quizInfo
                 )
             }
@@ -167,9 +168,12 @@ internal class InGameRepositoryImpl @Inject constructor(
     /**
      * 챌린지 모드에서 유저가 입력한 답을 기기에 저장합니다.
      *
-     * @param input
      */
-    override suspend fun saveChallengeData(input: List<QuizInputResult.Element>) {
-        TODO("Not yet implemented")
+    override suspend fun saveChallengeData(trialCount: Int, input: List<QuizInputResult.Element>) {
+        val rawData = ChallengeModeRawData(
+            trialCount,
+            input.map { ChallengeModeRawData.Element(it.letter, it.type.ordinal) })
+        val jsonString = Gson().toJson(rawData)
+        localDataSource.updateChallengeModeData(jsonString)
     }
 }

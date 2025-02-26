@@ -1,5 +1,6 @@
 package com.keunsori.presentation.intent
 
+import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.presentation.model.KeyboardItem
 import com.keunsori.presentation.model.LetterMatchType
 import com.keunsori.presentation.model.UserInput
@@ -13,6 +14,8 @@ sealed interface InGameEvent : UiEvent {
     data object ClickBackspaceButton : InGameEvent
     data object TryAgain : InGameEvent
     data object GetQuizData : InGameEvent
+    data class UpdateInGoingHistory(val quizInputs: List<List<QuizInputResult.Element>>) :
+        InGameEvent
 }
 
 sealed interface InGameEffect : UiEffect {

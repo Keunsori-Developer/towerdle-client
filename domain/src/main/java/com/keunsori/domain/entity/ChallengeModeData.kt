@@ -7,7 +7,7 @@ sealed class ChallengeModeData(open val date: String, open val quizInfo: QuizInf
     ) : ChallengeModeData(date, null)
 
     data class InGoing(
-        val quizInputResults: List<QuizInputResult>?,
+        val quizInputResults: List<List<QuizInputResult.Element>>?,
         override val date: String,
         override val quizInfo: QuizInfo
     ) : ChallengeModeData(date, quizInfo)

@@ -92,6 +92,10 @@ class InGameViewModel @Inject constructor(
                         return getQuizData()
                     }
 
+                    is InGameEvent.UpdateInGoingHistory -> {
+                        return currentState.updateInGoingHistory(event.quizInputs)
+                    }
+
                     else -> return currentState
                 }
             }
@@ -105,6 +109,30 @@ class InGameViewModel @Inject constructor(
         }
         Log.d(this.javaClass.simpleName, "quizInfo: ${quizData.first}")
         return InGameUiState.Main.init(quizData.second.size, quizData.first.maxAttempts)
+    }
+
+    private fun InGameUiState.Main.updateInGoingHistory(quizInputs: List<List<QuizInputResult.Element>>): InGameUiState {
+        val trialCount = quizInputs.size
+
+        var tmpKeyboardState = this.keyboardItems
+        for (quizInput in quizInputs) {
+            tmpKeyboardState = getUpdatedKeyboardState(tmpKeyboardState, quizInput)
+        }
+        return this.copy(
+            currentTrialCount = trialCount,
+            userInputsHistory = quizInputs.map { input ->
+                UserInput(input.map {
+                    UserInput.Element(
+                        letter = it.letter, color = when (it.type) {
+                            QuizInputResult.Type.MATCHED -> Color.ingameMatched
+                            QuizInputResult.Type.WRONG_SPOT -> Color.ingameWrongSpot
+                            QuizInputResult.Type.NOT_EXIST -> Color.ingameNotExist
+                        }
+                    )
+                })
+            },
+            keyboardItems = tmpKeyboardState
+        )
     }
 
     private fun InGameUiState.Main.handleBackspaceButton(): InGameUiState.Main {
@@ -144,38 +172,7 @@ class InGameViewModel @Inject constructor(
         }
         newUserInputs.add(UserInput(checkedUserInput))
 
-        // 키보드 색상 변경
-        val newKeyboardItems = keyboardItems.toMutableList()
-
-        for (result in answerResult.list) {
-            var y = 0
-            for (x in keyboardItems.indices) {
-                y =
-                    keyboardItems[x].indexOfFirst { item -> item is KeyboardItem.Letter && item.letter == result.letter }
-
-                if (y != -1) {
-                    val newList = newKeyboardItems[x].toMutableList().apply {
-                        val currentMatchType =
-                            (this[y] as? KeyboardItem.Letter)?.matchType ?: LetterMatchType.NONE
-
-                        val newMatchType = when (result.type) {
-                            QuizInputResult.Type.MATCHED -> LetterMatchType.MATCHED
-                            QuizInputResult.Type.WRONG_SPOT -> {
-                                if (currentMatchType == LetterMatchType.MATCHED) currentMatchType else LetterMatchType.WRONG_SPOT
-                            }
-
-                            QuizInputResult.Type.NOT_EXIST -> {
-                                if (currentMatchType == LetterMatchType.MATCHED || currentMatchType == LetterMatchType.WRONG_SPOT) currentMatchType
-                                else LetterMatchType.NOT_EXIST
-                            }
-                        }
-                        this[y] = KeyboardItem.Letter(result.letter, newMatchType)
-                    }
-                    newKeyboardItems[x] = newList
-                }
-            }
-        }
-
+        val newKeyboardItems = getUpdatedKeyboardState(keyboardItems, answerResult.list)
         val isAnswer = answerResult.list.all { it.type == QuizInputResult.Type.MATCHED }
         val gameFinished = currentTrialCount + 1 == this.maxTrialSize || isAnswer
         if (gameFinished) {
@@ -213,4 +210,44 @@ class InGameViewModel @Inject constructor(
         return this.copy(currentUserInput = newInput)
     }
 
+    private fun getUpdatedKeyboardState(
+        oldKeyboardState: List<List<KeyboardItem>>,
+        answerResults: List<QuizInputResult.Element>
+    ): List<List<KeyboardItem>> {
+        // 키보드 색상 변경
+
+        val newKeyboardItems = oldKeyboardState.toMutableList()
+
+        for (result in answerResults) {
+            var y = 0
+            for (x in oldKeyboardState.indices) {
+                y =
+                    oldKeyboardState[x].indexOfFirst { item -> item is KeyboardItem.Letter && item.letter == result.letter }
+
+                if (y != -1) {
+                    val newList = newKeyboardItems[x].toMutableList().apply {
+                        val currentMatchType =
+                            (this[y] as? KeyboardItem.Letter)?.matchType ?: LetterMatchType.NONE
+
+                        val newMatchType = when (result.type) {
+                            QuizInputResult.Type.MATCHED -> LetterMatchType.MATCHED
+                            QuizInputResult.Type.WRONG_SPOT -> {
+                                if (currentMatchType == LetterMatchType.MATCHED) currentMatchType else LetterMatchType.WRONG_SPOT
+                            }
+
+                            QuizInputResult.Type.NOT_EXIST -> {
+                                if (currentMatchType == LetterMatchType.MATCHED || currentMatchType == LetterMatchType.WRONG_SPOT) currentMatchType
+                                else LetterMatchType.NOT_EXIST
+                            }
+
+                        }
+                        this[y] = KeyboardItem.Letter(result.letter, newMatchType)
+                    }
+                    newKeyboardItems[x] = newList
+                }
+            }
+        }
+
+        return newKeyboardItems
+    }
 }
