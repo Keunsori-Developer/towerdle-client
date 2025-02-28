@@ -4,21 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,8 +30,7 @@ fun ResultScreen(
     realAnswer: String,
     definitions: List<WordDefinition>,
     congratImage: @Composable () -> Unit,
-    onQuitButtonClicked: () -> Unit = {},
-    onRetryButtonClicked: () -> Unit = {}
+    buttonContents: @Composable ColumnScope.() -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -73,45 +68,10 @@ fun ResultScreen(
                 }
             }
             HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outline)
-
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    "끝내기",
-                    MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.weight(1f),
-                    onClick = onQuitButtonClicked
-                )
-                VerticalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.height(55.dp)
-                )
-                Button(
-                    "한번 더 하기",
-                    MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.weight(1f),
-                    onClick = onRetryButtonClicked
-                )
-            }
+            buttonContents()
         }
     }
 }
-
-@Composable
-private fun Button(text: String, color: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-    ) {
-        Text(text, color = color)
-    }
-}
-
 
 @Preview
 @Composable
@@ -130,5 +90,5 @@ fun ResultScreen_Preview() {
                     .size(30.dp)
                     .background(Color.Yellow)
             )
-        }, {}, {})
+        }, {})
 }

@@ -16,7 +16,7 @@ sealed interface ChallengeState : UiState {
         val quizInputs: List<List<QuizInputResult.Element>>?
     ) : ChallengeState
 
-    data class Finished(val date: String, val quizInputs: List<List<QuizInputResult.Element>>) :
+    data class Finished(val date: String, val quizInputs: List<List<UserInput.Element>>) :
         ChallengeState
 }
 

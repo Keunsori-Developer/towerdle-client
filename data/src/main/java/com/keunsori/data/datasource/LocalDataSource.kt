@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,7 @@ class LocalDataSource @Inject constructor(
         val IS_GOOGLE_LOGGED_IN_KEY = booleanPreferencesKey("IS_GOOGLE_LOGGED_IN")
         val GUEST_ID_TOKEN = stringPreferencesKey("GUEST_ID_TOKEN")
         val CHALLENGE_MODE_DATA = stringSetPreferencesKey("CHALLENGE_MODE_DATA")
+        val CHALLENGE_MODE_SAVED_DATE = stringPreferencesKey("CHALLENGE_MODE_SAVED_DATE")
     }
 
     private var _refreshToken: String = ""
@@ -102,12 +104,18 @@ class LocalDataSource @Inject constructor(
         setAccessToken("")
     }
 
-    suspend fun updateChallengeModeData(jsonString: String?) {
+    suspend fun updateChallengeModeData(jsonString: String?, date: String) {
         try {
             dataStore.edit { preferences ->
                 if (jsonString == null) {
                     preferences.remove(CHALLENGE_MODE_DATA)
+                    preferences.remove(CHALLENGE_MODE_SAVED_DATE)
                 } else {
+                    val savedDate = preferences[CHALLENGE_MODE_SAVED_DATE]
+                    if (savedDate != date) {
+                        preferences[CHALLENGE_MODE_SAVED_DATE] = date
+                        preferences.remove(CHALLENGE_MODE_DATA)
+                    }
                     // 기존에 저장된 Set<String> 가져오기 (없으면 빈 Set 반환)
                     val currentSet = preferences[CHALLENGE_MODE_DATA] ?: emptySet()
 
@@ -116,6 +124,7 @@ class LocalDataSource @Inject constructor(
 
                     // 업데이트된 Set 저장
                     preferences[CHALLENGE_MODE_DATA] = updatedSet
+                    preferences[CHALLENGE_MODE_SAVED_DATE] = date
                 }
             }
         } catch (e: Exception) {
@@ -123,9 +132,10 @@ class LocalDataSource @Inject constructor(
         }
     }
 
-    fun getChallengeModeData(): Flow<Set<String>?> {
+    fun getChallengeModeData(date: String): Flow<Set<String>?> {
         return dataStore.data.map { preferences ->
-            preferences[CHALLENGE_MODE_DATA]
+            val savedDate = preferences[CHALLENGE_MODE_SAVED_DATE]
+            if (savedDate == date) preferences[CHALLENGE_MODE_DATA] else null
         }
     }
 }

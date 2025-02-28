@@ -9,6 +9,7 @@ import com.keunsori.domain.usecase.SaveChallengeUserInputUseCase
 import com.keunsori.presentation.intent.ChallengeEvent
 import com.keunsori.presentation.intent.ChallengeReducer
 import com.keunsori.presentation.intent.ChallengeState
+import com.keunsori.presentation.model.UserInput.Element.Companion.toPresentationModel
 import com.keunsori.presentation.ui.theme.Color
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -49,13 +50,18 @@ class ChallengeViewModel @Inject constructor(
     }
 
     private suspend fun getChallengeData() {
+        reducer.setState(ChallengeState.Loading)
         when (val data = getTodayChallengeDataUseCase()) {
             ChallengeModeData.FailedToGetModeData -> {
                 reducer.setState(ChallengeState.FailToLoad)
             }
 
             is ChallengeModeData.Finished -> {
-                reducer.setState(ChallengeState.Finished(data.date, data.quizInputResults))
+                reducer.setState(
+                    ChallengeState.Finished(
+                        data.date,
+                        data.quizInputResults.map { result -> result.map { it.toPresentationModel() } })
+                )
             }
 
             is ChallengeModeData.InGoing -> {

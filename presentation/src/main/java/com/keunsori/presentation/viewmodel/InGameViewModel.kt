@@ -18,6 +18,7 @@ import com.keunsori.presentation.intent.MainEffect
 import com.keunsori.presentation.model.KeyboardItem
 import com.keunsori.presentation.model.LetterMatchType
 import com.keunsori.presentation.model.UserInput
+import com.keunsori.presentation.model.UserInput.Element.Companion.toPresentationModel
 import com.keunsori.presentation.ui.theme.Color
 import com.keunsori.presentation.utils.GifLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -159,17 +160,7 @@ class InGameViewModel @Inject constructor(
         val answerResult = checkAnswerUseCase(userAnswer, answer)
 
         // 유저가 입력한 정답 체크
-        val checkedUserInput = answerResult.list.map { e ->
-            when (e.type) {
-                QuizInputResult.Type.MATCHED -> UserInput.Element(e.letter, Color.ingameMatched)
-                QuizInputResult.Type.WRONG_SPOT -> UserInput.Element(
-                    e.letter,
-                    Color.ingameWrongSpot
-                )
-
-                QuizInputResult.Type.NOT_EXIST -> UserInput.Element(e.letter, Color.ingameNotExist)
-            }
-        }
+        val checkedUserInput = answerResult.list.map { e -> e.toPresentationModel() }
         newUserInputs.add(UserInput(checkedUserInput))
 
         val newKeyboardItems = getUpdatedKeyboardState(keyboardItems, answerResult.list)

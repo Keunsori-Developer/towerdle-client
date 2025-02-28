@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -111,7 +112,7 @@ internal class InGameRepositoryImpl @Inject constructor(
      */
     override suspend fun requestTodayChallengeData(timestamp: Long): ChallengeModeData {
         val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).format(timestamp)
-        val savedData = localDataSource.getChallengeModeData().first()?.map {
+        val savedData = localDataSource.getChallengeModeData(todayDate).first()?.map {
             Gson().fromJson(it, ChallengeModeRawData::class.java)
         }?.sortedBy { it.index }
 
@@ -170,10 +171,12 @@ internal class InGameRepositoryImpl @Inject constructor(
      *
      */
     override suspend fun saveChallengeData(trialCount: Int, input: List<QuizInputResult.Element>) {
+        val todayDate =
+            SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).format(System.currentTimeMillis())
         val rawData = ChallengeModeRawData(
             trialCount,
             input.map { ChallengeModeRawData.Element(it.letter, it.type.ordinal) })
         val jsonString = Gson().toJson(rawData)
-        localDataSource.updateChallengeModeData(jsonString)
+        localDataSource.updateChallengeModeData(jsonString, todayDate)
     }
 }
