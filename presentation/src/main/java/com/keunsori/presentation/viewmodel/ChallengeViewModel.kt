@@ -6,23 +6,31 @@ import com.keunsori.domain.entity.ChallengeModeData
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.usecase.GetTodayChallengeDataUseCase
 import com.keunsori.domain.usecase.SaveChallengeUserInputUseCase
+import com.keunsori.domain.usecase.ShareChallengeResultUseCase
+import com.keunsori.presentation.intent.ChallengeEffect
 import com.keunsori.presentation.intent.ChallengeEvent
 import com.keunsori.presentation.intent.ChallengeReducer
 import com.keunsori.presentation.intent.ChallengeState
+import com.keunsori.presentation.model.UserInput.Element.Companion.toDomainModel
 import com.keunsori.presentation.model.UserInput.Element.Companion.toPresentationModel
-import com.keunsori.presentation.ui.theme.Color
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChallengeViewModel @Inject constructor(
     private val getTodayChallengeDataUseCase: GetTodayChallengeDataUseCase,
-    private val saveChallengeUserInputUseCase: SaveChallengeUserInputUseCase
+    private val saveChallengeUserInputUseCase: SaveChallengeUserInputUseCase,
+    private val shareChallengeResultUseCase: ShareChallengeResultUseCase
 ) : ViewModel() {
     private val reducer = ChallengeReducer(ChallengeState.Loading)
 
     val uiState get() = reducer.uiState
+
+    private val effectChannel = Channel<ChallengeEffect>(Channel.BUFFERED)
+    val effectFlow = effectChannel.receiveAsFlow()
 
     fun sendEvent(event: ChallengeEvent) {
         viewModelScope.launch {
@@ -31,19 +39,19 @@ class ChallengeViewModel @Inject constructor(
                     getChallengeData()
                 }
 
-                is ChallengeEvent.ToggleShowResultButton -> TODO()
                 is ChallengeEvent.SaveUserInput -> {
                     saveChallengeUserInputUseCase(
                         trialCount = event.trialCount,
-                        input = event.userInput.elements.map {
-                            QuizInputResult.Element(
-                                it.letter, type = when (it.color) {
-                                    Color.ingameMatched -> QuizInputResult.Type.MATCHED
-                                    Color.ingameWrongSpot -> QuizInputResult.Type.WRONG_SPOT
-                                    else -> QuizInputResult.Type.NOT_EXIST
-                                }
-                            )
-                        })
+                        input = event.userInput.elements.map { it.toDomainModel() })
+                }
+
+                is ChallengeEvent.ShareResult -> {
+                    val state = uiState.value as? ChallengeState.Finished ?: return@launch
+
+                    val text = shareChallengeResultUseCase.invoke(
+                        state.date,
+                        state.quizInputs.map { input -> input.map { it.toDomainModel() } })
+                    effectChannel.send(ChallengeEffect.OpenIntent(text))
                 }
             }
         }
@@ -70,6 +78,8 @@ class ChallengeViewModel @Inject constructor(
                         data.date,
                         true,
                         data.quizInfo.length,
+                        data.quizInfo.count,
+                        data.quizInfo.maxAttempts,
                         data.quizInputResults
                     )
                 )
@@ -81,6 +91,8 @@ class ChallengeViewModel @Inject constructor(
                         data.date,
                         false,
                         data.quizInfo.length,
+                        data.quizInfo.count,
+                        data.quizInfo.maxAttempts,
                         null
                     )
                 )

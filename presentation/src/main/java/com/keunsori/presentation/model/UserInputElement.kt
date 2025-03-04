@@ -14,6 +14,14 @@ data class UserInput(val elements: List<Element>) {
                     QuizInputResult.Type.NOT_EXIST -> com.keunsori.presentation.ui.theme.Color.ingameNotExist
                 }
             )
+
+            fun UserInput.Element.toDomainModel() = QuizInputResult.Element(
+                this.letter, type = when (this.color) {
+                    com.keunsori.presentation.ui.theme.Color.ingameMatched -> QuizInputResult.Type.MATCHED
+                    com.keunsori.presentation.ui.theme.Color.ingameWrongSpot -> QuizInputResult.Type.WRONG_SPOT
+                    else -> QuizInputResult.Type.NOT_EXIST
+                }
+            )
         }
     }
 

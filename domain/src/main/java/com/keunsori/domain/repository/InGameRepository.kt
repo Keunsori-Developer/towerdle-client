@@ -39,4 +39,14 @@ interface InGameRepository {
      *
      */
     suspend fun saveChallengeData(trialCount: Int, input: List<QuizInputResult.Element>)
+
+    /**
+     * 챌린지 모드 진행 후 공유할 텍스트를 가져옵니다.
+     *
+     * @return
+     */
+    suspend fun getStringForShareChallengeResult(
+        date: String,
+        quizInputResults: List<List<QuizInputResult.Element>>
+    ): String
 }

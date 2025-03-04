@@ -12,11 +12,11 @@ import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.entity.QuizLevel
 import com.keunsori.domain.entity.WordDefinition
 import com.keunsori.domain.repository.InGameRepository
+import com.keunsori.domain.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -178,5 +178,32 @@ internal class InGameRepositoryImpl @Inject constructor(
             input.map { ChallengeModeRawData.Element(it.letter, it.type.ordinal) })
         val jsonString = Gson().toJson(rawData)
         localDataSource.updateChallengeModeData(jsonString, todayDate)
+    }
+
+    /**
+     * 챌린지 모드 진행 후 공유할 텍스트를 가져옵니다.
+     *
+     * @return
+     */
+    override suspend fun getStringForShareChallengeResult(
+        date: String,
+        quizInputResults: List<List<QuizInputResult.Element>>
+    ): String {
+        val sb = StringBuilder()
+
+        sb.appendLine("타래들 챌린지 풀이 결과 (${date})")
+
+        for (input in quizInputResults) {
+            sb.appendLine()
+            for (element in input) {
+                val icon = when (element.type) {
+                    QuizInputResult.Type.MATCHED -> "\uD83D\uDFE2"
+                    QuizInputResult.Type.WRONG_SPOT -> "\uD83D\uDFE0"
+                    QuizInputResult.Type.NOT_EXIST -> "⚪"
+                }
+                sb.append(icon)
+            }
+        }
+        return sb.toString()
     }
 }

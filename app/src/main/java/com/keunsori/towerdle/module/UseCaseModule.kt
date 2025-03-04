@@ -9,6 +9,7 @@ import com.keunsori.domain.usecase.GetUserInfoUseCase
 import com.keunsori.domain.usecase.IsExistWordUseCase
 import com.keunsori.domain.usecase.SaveChallengeUserInputUseCase
 import com.keunsori.domain.usecase.SendQuizResultUseCase
+import com.keunsori.domain.usecase.ShareChallengeResultUseCase
 import com.keunsori.domain.usecase.UserUseCase
 import dagger.Module
 import dagger.Provides
@@ -58,5 +59,10 @@ object UseCaseModule {
     @Provides
     fun provideSaveChallengeUserInputUserCase(inGameRepository: InGameRepository): SaveChallengeUserInputUseCase {
         return SaveChallengeUserInputUseCase(inGameRepository)
+    }
+
+    @Provides
+    fun provideShareChallengeResultUseCase(inGameRepository: InGameRepository): ShareChallengeResultUseCase {
+        return ShareChallengeResultUseCase(inGameRepository)
     }
 }

@@ -1,5 +1,6 @@
 package com.keunsori.presentation.ui
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
@@ -29,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.core.content.ContextCompat.startActivity
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.presentation.intent.ChallengeEvent
 import com.keunsori.presentation.intent.ChallengeState
@@ -43,6 +49,7 @@ import com.keunsori.presentation.ui.util.Dialog
 import com.keunsori.presentation.ui.util.TopBar
 import com.keunsori.presentation.viewmodel.ChallengeViewModel
 import com.keunsori.presentation.R
+import com.keunsori.presentation.intent.ChallengeEffect
 import com.keunsori.presentation.model.UserInput
 import com.keunsori.presentation.ui.theme.Color
 
@@ -52,8 +59,26 @@ fun ChallengeGuideScreen(
     navigateToHome: () -> Unit,
     navigateToInGame: () -> Unit
 ) {
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         viewModel.sendEvent(ChallengeEvent.GetData)
+    }
+    LaunchedEffect(Unit) {
+        viewModel.effectFlow.collect {
+            when (it) {
+                is ChallengeEffect.OpenIntent -> {
+                    val sendIntent: Intent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, it.text)
+                        type = "text/plain"
+                    }
+
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    context.startActivity(shareIntent)
+                }
+            }
+        }
     }
 
     Column(
@@ -65,7 +90,10 @@ fun ChallengeGuideScreen(
         TopBar("챌린지", onBackButtonClicked = navigateToHome)
         when (state) {
             is ChallengeState.CanStart -> CanStartScreen(state, navigateToInGame)
-            is ChallengeState.Finished -> FinishedScreen(state)
+            is ChallengeState.Finished -> FinishedScreen(
+                state,
+                onClickShareButton = { viewModel.sendEvent(ChallengeEvent.ShareResult) })
+
             ChallengeState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -114,17 +142,34 @@ private fun CanStartScreen(state: ChallengeState.CanStart, onClickStartButton: (
             "하루에 한 번 모두가 같은 문제를 풀어 경쟁할 수 있습니다.\n" +
                     "새로운 챌린지 단어는 자정에 갱신됩니다. (KST 기준)", style = MaterialTheme.typography.bodyMedium
         )
-        ElevatedButton(
-            onClick = onClickStartButton,
-        ) {
-            Text("시작하기")
-        }
 
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text("오늘의 단어 정보", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "- 글자 수: ${state.wordLength}글자\n" +
+                    "- 자모 갯수: ${state.wordCount}개\n" +
+                    "- 최대 입력 가능 횟수: ${state.maxAttemptsCount}번",
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            ElevatedButton(
+                onClick = onClickStartButton,
+            ) {
+                Text("시작하기")
+            }
+        }
     }
 }
 
 @Composable
-private fun FinishedScreen(state: ChallengeState.Finished) {
+private fun FinishedScreen(state: ChallengeState.Finished, onClickShareButton: () -> Unit) {
     var isResultOn by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -166,6 +211,27 @@ private fun FinishedScreen(state: ChallengeState.Finished) {
         }
 
         UserInputHistory(isShown = isResultOn, quizInputs = state.quizInputs)
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            ElevatedButton(onClick = onClickShareButton) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Share,
+                        modifier = Modifier.size(20.dp),
+                        contentDescription = "share"
+                    )
+                    Text("공유하기")
+                }
+            }
+        }
     }
 }
 
@@ -180,7 +246,9 @@ private fun UserInputHistory(isShown: Boolean, quizInputs: List<List<UserInput.E
         )
     }
     Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -228,7 +296,7 @@ private fun UserInputHistory(isShown: Boolean, quizInputs: List<List<UserInput.E
 @Preview
 @Composable
 fun ChallengeGuideScreen_preview() {
-    CanStartScreen(state = ChallengeState.CanStart("2024-11-11", true, 3, listOf()), {})
+    CanStartScreen(state = ChallengeState.CanStart("2024-11-11", true, 3, 7, 6, listOf()), {})
 }
 
 @Preview
@@ -246,5 +314,5 @@ fun ChallengeGuideScreen_preview2() {
             UserInput.Element('ㄴ', Color.ingameMatched)
         )
     )
-    FinishedScreen(state = ChallengeState.Finished("2024-11-11", quizinputs))
+    FinishedScreen(state = ChallengeState.Finished("2024-11-11", quizinputs)) {}
 }

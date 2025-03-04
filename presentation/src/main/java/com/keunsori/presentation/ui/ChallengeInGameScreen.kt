@@ -1,5 +1,6 @@
 package com.keunsori.presentation.ui
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -16,9 +17,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.keunsori.presentation.R
+import com.keunsori.presentation.intent.ChallengeEffect
 import com.keunsori.presentation.intent.ChallengeEvent
 import com.keunsori.presentation.intent.ChallengeState
 import com.keunsori.presentation.intent.InGameEvent
@@ -34,6 +37,7 @@ fun ChallengeInGameScreen(
     challengeViewModel: ChallengeViewModel,
     navigateToMain: () -> Unit
 ) {
+    val context = LocalContext.current
     val state = inGameViewModel.uiState.collectAsState()
     val historyUpdated = rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(key1 = state.value) {
@@ -43,6 +47,22 @@ fun ChallengeInGameScreen(
                 (challengeViewModel.uiState.value as? ChallengeState.CanStart)?.quizInputs
             savedQuizInputs?.let {
                 inGameViewModel.sendEvent(InGameEvent.UpdateInGoingHistory(it))
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        challengeViewModel.effectFlow.collect {
+            when (it) {
+                is ChallengeEffect.OpenIntent -> {
+                    val sendIntent: Intent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, it.text)
+                        type = "text/plain"
+                    }
+
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    context.startActivity(shareIntent)
+                }
             }
         }
     }
@@ -75,7 +95,8 @@ fun ChallengeInGameScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Button(
-                        onClick = {/*TODO*/},
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { challengeViewModel.sendEvent(ChallengeEvent.ShareResult) },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                     ) {
                         Text("공유하기", color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -86,6 +107,7 @@ fun ChallengeInGameScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Button(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = navigateToMain,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                     ) {
