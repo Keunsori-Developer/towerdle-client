@@ -17,6 +17,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +28,8 @@ class ChallengeViewModel @Inject constructor(
     private val shareChallengeResultUseCase: ShareChallengeResultUseCase
 ) : ViewModel() {
     private val reducer = ChallengeReducer(ChallengeState.Loading)
+    private var todayDate =
+        SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).format(System.currentTimeMillis())
 
     val uiState get() = reducer.uiState
 
@@ -46,11 +50,9 @@ class ChallengeViewModel @Inject constructor(
                 }
 
                 is ChallengeEvent.ShareResult -> {
-                    val state = uiState.value as? ChallengeState.Finished ?: return@launch
-
                     val text = shareChallengeResultUseCase.invoke(
-                        state.date,
-                        state.quizInputs.map { input -> input.map { it.toDomainModel() } })
+                        todayDate,
+                        event.quizInputResult.map { input -> input.map { it.toDomainModel() } })
                     effectChannel.send(ChallengeEffect.OpenIntent(text))
                 }
             }
@@ -59,7 +61,8 @@ class ChallengeViewModel @Inject constructor(
 
     private suspend fun getChallengeData() {
         reducer.setState(ChallengeState.Loading)
-        when (val data = getTodayChallengeDataUseCase()) {
+        todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).format(System.currentTimeMillis())
+        when (val data = getTodayChallengeDataUseCase(todayDate)) {
             ChallengeModeData.FailedToGetModeData -> {
                 reducer.setState(ChallengeState.FailToLoad)
             }

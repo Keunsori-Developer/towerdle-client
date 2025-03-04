@@ -92,7 +92,7 @@ fun ChallengeGuideScreen(
             is ChallengeState.CanStart -> CanStartScreen(state, navigateToInGame)
             is ChallengeState.Finished -> FinishedScreen(
                 state,
-                onClickShareButton = { viewModel.sendEvent(ChallengeEvent.ShareResult) })
+                onClickShareButton = { viewModel.sendEvent(ChallengeEvent.ShareResult(state.quizInputs)) })
 
             ChallengeState.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

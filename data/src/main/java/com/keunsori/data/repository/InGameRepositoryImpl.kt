@@ -110,8 +110,7 @@ internal class InGameRepositoryImpl @Inject constructor(
      * 오늘 날짜에 해당하는 챌린지 모드 데이터를 가져옵니다.
      *
      */
-    override suspend fun requestTodayChallengeData(timestamp: Long): ChallengeModeData {
-        val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).format(timestamp)
+    override suspend fun requestTodayChallengeData(todayDate: String): ChallengeModeData {
         val savedData = localDataSource.getChallengeModeData(todayDate).first()?.map {
             Gson().fromJson(it, ChallengeModeRawData::class.java)
         }?.sortedBy { it.index }

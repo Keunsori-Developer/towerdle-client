@@ -26,7 +26,7 @@ sealed interface ChallengeState : UiState {
 sealed interface ChallengeEvent : UiEvent {
     data object GetData : ChallengeEvent
     data class SaveUserInput(val trialCount: Int, val userInput: UserInput) : ChallengeEvent
-    data object ShareResult : ChallengeEvent
+    data class ShareResult(val quizInputResult: List<List<UserInput.Element>>) : ChallengeEvent
 }
 
 sealed interface ChallengeEffect : UiEffect {

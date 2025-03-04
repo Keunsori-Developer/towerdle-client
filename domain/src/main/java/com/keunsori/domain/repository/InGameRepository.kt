@@ -32,7 +32,7 @@ interface InGameRepository {
      * 오늘 날짜에 해당하는 챌린지 모드 데이터를 가져옵니다.
      *
      */
-    suspend fun requestTodayChallengeData(timestamp: Long): ChallengeModeData
+    suspend fun requestTodayChallengeData(todayDate: String): ChallengeModeData
 
     /**
      * 챌린지 모드에서 유저가 입력한 답을 기기에 저장합니다.

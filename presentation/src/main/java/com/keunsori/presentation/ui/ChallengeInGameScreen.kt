@@ -96,7 +96,11 @@ fun ChallengeInGameScreen(
                 ) {
                     Button(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = { challengeViewModel.sendEvent(ChallengeEvent.ShareResult) },
+                        onClick = {
+                            challengeViewModel.sendEvent(
+                                ChallengeEvent.ShareResult((state.value as? InGameUiState.Main)?.userInputsHistory?.map { it.elements }
+                                    ?: listOf()))
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                     ) {
                         Text("공유하기", color = MaterialTheme.colorScheme.onPrimaryContainer)
