@@ -59,7 +59,7 @@ fun MainScreen(viewModel: MainViewModel, onFinish: () -> Unit) {
             painter = painterResource(id = R.drawable.challenge_button),
             contentDescription = stringResource(id = R.string.challenge),
             modifier = Modifier.width(194.dp).height(60.dp).clickable {
-
+                viewModel.moveToScreen(Navigation.Main_ChallengeGuide.route)
             })
 
         Image(

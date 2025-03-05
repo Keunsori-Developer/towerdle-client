@@ -17,17 +17,23 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object DataModule {
     @Provides
-    fun provideMainRemoteDataSource(mainApiService: MainApiService) : MainRemoteDataSource {
+    fun provideMainRemoteDataSource(mainApiService: MainApiService): MainRemoteDataSource {
         return MainRemoteDataSource(mainApiService)
     }
 
     @Provides
-    fun provideInGameRepository(mainRemoteDataSource: MainRemoteDataSource): InGameRepository {
-        return InGameRepositoryImpl(mainRemoteDataSource)
+    fun provideInGameRepository(
+        mainRemoteDataSource: MainRemoteDataSource,
+        localDataSource: LocalDataSource
+    ): InGameRepository {
+        return InGameRepositoryImpl(mainRemoteDataSource, localDataSource)
     }
 
     @Provides
-    fun provideUserRepository(userRemoteDataSource: UserRemoteDataSource, localDataSource: LocalDataSource): UserRepository {
+    fun provideUserRepository(
+        userRemoteDataSource: UserRemoteDataSource,
+        localDataSource: LocalDataSource
+    ): UserRepository {
         return UserRepositoryImpl(userRemoteDataSource, localDataSource)
     }
 }

@@ -1,4 +1,4 @@
-package com.keunsori.presentation.ui.main
+package com.keunsori.presentation.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
@@ -56,7 +56,7 @@ fun ChooseLevelScreen(navigateToHome: () -> Unit, navigateToInGame: (QuizLevel) 
             LevelItem(
                 iconRes = R.drawable.level_1_easy,
                 title = "쉬움",
-                description = "6자모의 2글자 단어가 나옵니다.\n" +
+                description = "4자모의 2글자 단어가 나옵니다.\n" +
                         "복합자모 (ex. ㅚ, ㅟ, ㄺ)가 들어가지 않습니다.",
                 isSelected = selectedLevel == QuizLevel.EASY,
                 onClicked = { selectedLevel = QuizLevel.EASY }
@@ -64,7 +64,7 @@ fun ChooseLevelScreen(navigateToHome: () -> Unit, navigateToInGame: (QuizLevel) 
             LevelItem(
                 iconRes = R.drawable.level_2_normal,
                 title = "보통",
-                description = "복합자모가 포함된 6자모의 2글자 단어가 나옵니다.\n" +
+                description = "복합자모가 포함된 5~6자모의 2~3글자 단어가 나옵니다.\n" +
                         "겹치는 자음이 있을수도 있습니다.",
                 isSelected = selectedLevel == QuizLevel.MEDIUM,
                 onClicked = { selectedLevel = QuizLevel.MEDIUM }
@@ -72,20 +72,10 @@ fun ChooseLevelScreen(navigateToHome: () -> Unit, navigateToInGame: (QuizLevel) 
             LevelItem(
                 iconRes = R.drawable.level_3_hard,
                 title = "어려움",
-                description = "8자모 혹은 9자모의 3글자 단어가 나옵니다.\n" +
-                        "복합자모가 들어가지 않습니다.\n" +
-                        "겹치는 자음이 있을수도 있습니다.",
+                description = "8~11자모의 2~3글자 단어가 나옵니다.\n" +
+                        "복합자모가 들어갈 수도 있고 겹치는 자음이 있을수도 있습니다.",
                 isSelected = selectedLevel == QuizLevel.HARD,
                 onClicked = { selectedLevel = QuizLevel.HARD }
-            )
-            LevelItem(
-                iconRes = R.drawable.level_4_very_hard,
-                title = "매우 어려움",
-                description = "8자모 혹은 9자모의 3글자 단어가 나옵니다.\n" +
-                        "복합자모가 포함됩니다.\n" +
-                        "겹치는 자음이 있을수도 있습니다.",
-                isSelected = selectedLevel == QuizLevel.VERYHARD,
-                onClicked = { selectedLevel = QuizLevel.VERYHARD }
             )
         }
         ElevatedButton(

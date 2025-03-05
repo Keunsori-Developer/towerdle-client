@@ -1,25 +1,32 @@
-package com.keunsori.presentation.ui
+package com.keunsori.presentation.ui.ingame
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -27,17 +34,15 @@ import com.keunsori.presentation.R
 import com.keunsori.presentation.intent.InGameEffect
 import com.keunsori.presentation.intent.InGameEvent
 import com.keunsori.presentation.intent.InGameUiState
-import com.keunsori.presentation.ui.ingame.GameGuideScreen
-import com.keunsori.presentation.ui.ingame.Keyboard
-import com.keunsori.presentation.ui.ingame.MenuBar
-import com.keunsori.presentation.ui.ingame.ResultScreen
-import com.keunsori.presentation.ui.ingame.UserInputScreen
 import com.keunsori.presentation.ui.util.Dialog
 import com.keunsori.presentation.viewmodel.InGameViewModel
-import kotlinx.coroutines.launch
 
 @Composable
-fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
+internal fun CommonInGameScreen(
+    inGameViewModel: InGameViewModel,
+    navigateToMain: () -> Unit,
+    resultScreenContent: @Composable (isSuccess: Boolean) -> Unit
+) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         inGameViewModel.effectFlow.collect {
@@ -81,23 +86,7 @@ fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
 
         val mainState = uiState.value as? InGameUiState.Main ?: return@Box
         if (mainState.isGameFinished) {
-            ResultScreen(
-                isCorrectAnswer = mainState.isCorrectAnswer,
-                realAnswer = inGameViewModel.quizData.first.word,
-                definitions = inGameViewModel.quizData.first.definitions,
-                congratImage = {
-                    AsyncImage(
-                        model = R.drawable.congrat,
-                        contentDescription = null,
-                        imageLoader = inGameViewModel.gifLoader.gifEnabledLoader,
-                        modifier = Modifier.size(200.dp)
-                    )
-                },
-                onQuitButtonClicked = navigateToMain,
-                onRetryButtonClicked = {
-                    inGameViewModel.sendEvent(InGameEvent.TryAgain)
-                }
-            )
+            resultScreenContent(mainState.isCorrectAnswer)
         }
     }
 
@@ -117,6 +106,7 @@ fun InGameScreen(inGameViewModel: InGameViewModel, navigateToMain: () -> Unit) {
         GameGuideScreen(onClose = { guideScreenOpened = false })
     }
 }
+
 
 @Composable
 private fun Loading() {

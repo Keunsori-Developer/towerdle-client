@@ -1,5 +1,6 @@
 package com.keunsori.domain.repository
 
+import com.keunsori.domain.entity.ChallengeModeData
 import com.keunsori.domain.entity.QuizInfo
 import com.keunsori.domain.entity.QuizInputResult
 import com.keunsori.domain.entity.QuizLevel
@@ -26,4 +27,26 @@ interface InGameRepository {
      *
      */
     suspend fun sendResult(uuid: String, attemptCount: Int, success: Boolean)
+
+    /**
+     * 오늘 날짜에 해당하는 챌린지 모드 데이터를 가져옵니다.
+     *
+     */
+    suspend fun requestTodayChallengeData(todayDate: String): ChallengeModeData
+
+    /**
+     * 챌린지 모드에서 유저가 입력한 답을 기기에 저장합니다.
+     *
+     */
+    suspend fun saveChallengeData(trialCount: Int, input: List<QuizInputResult.Element>)
+
+    /**
+     * 챌린지 모드 진행 후 공유할 텍스트를 가져옵니다.
+     *
+     * @return
+     */
+    suspend fun getStringForShareChallengeResult(
+        date: String,
+        quizInputResults: List<List<QuizInputResult.Element>>
+    ): String
 }

@@ -20,8 +20,8 @@ data class GetUserInfoResponse (
             val medium: DetailedStat? = null,
             @SerializedName("HARD")
             val hard: DetailedStat? = null,
-            @SerializedName("VERYHARD")
-            val veryHard: DetailedStat? = null,
+            @SerializedName("CHALLENGE")
+            val challenge: DetailedStat? = null,
         ) {
             data class DetailedStat (
                 val solvedCnt : Int,
