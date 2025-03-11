@@ -104,6 +104,17 @@ class LocalDataSource @Inject constructor(
         setAccessToken("")
     }
 
+    suspend fun clearChallengeModeData() {
+        try {
+            dataStore.edit { preferences ->
+                preferences.remove(CHALLENGE_MODE_DATA)
+                preferences.remove(CHALLENGE_MODE_SAVED_DATE)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     suspend fun updateChallengeModeData(jsonString: String?, date: String) {
         try {
             dataStore.edit { preferences ->

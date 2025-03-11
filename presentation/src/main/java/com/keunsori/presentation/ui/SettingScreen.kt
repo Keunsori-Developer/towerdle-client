@@ -89,8 +89,8 @@ fun SettingScreen(
                     loginViewModel.sendEvent(LoginEvent.SetDetailDialogState(true))
                 }
             ) {
-                Text("계정: " + uiState.email)
-                Text("이름: " + uiState.name)
+                Text("계정: " + uiState.userInfo.email)
+                Text("이름: " + uiState.userInfo.name)
             }
         } else {
             LoginStateScreen(
@@ -109,7 +109,7 @@ fun SettingScreen(
                 }, onClickDetailButton = {
                     loginViewModel.sendEvent(LoginEvent.SetDetailDialogState(true))
                 }) {
-                Text("이름: " + uiState.name, fontWeight = FontWeight.SemiBold)
+                Text("이름: " + uiState.userInfo.name, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = "계정 연동을 통해\n게임 데이터를 유지해주세요!", fontSize = 15.sp)
             }
@@ -221,6 +221,7 @@ fun LoginStateScreen(
             content.invoke()
             Text("통계", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 15.dp))
             Text("맞춘 문제 수: " + uiState.userInfo.solveCount.toString(), fontSize = 15.sp)
+            Text("시도 횟수: " + uiState.userInfo.solveCount.toString(), fontSize = 15.sp)
             Text("마지막 푼 날짜: " + uiState.userInfo.lastSolve, fontSize = 15.sp)
 
             ElevatedButton(onClick = {
@@ -245,14 +246,13 @@ fun DetailedStats(quizLevel: QuizLevel, detailedStats: UserInfo.DetailedStats) {
     Text("맞춘 문제 수: " + detailedStats.solvedCnt, fontSize = 15.sp)
     Text("연속 맞춘 문제 수: " + detailedStats.solveStreak, fontSize = 15.sp)
     Text("시도 횟수 별 정답 수")
-    Text("1: " + detailedStats.solvedAttemptsStats[0] + "회")
-    Text("2: " + detailedStats.solvedAttemptsStats[1] + "회")
-    Text("3: " + detailedStats.solvedAttemptsStats[2] + "회")
-    Text("4: " + detailedStats.solvedAttemptsStats[3] + "회")
-    Text("5: " + detailedStats.solvedAttemptsStats[4] + "회")
-    Text("6: " + detailedStats.solvedAttemptsStats[5] + "회")
-    if (quizLevel == QuizLevel.EASY) {
-        Text("7: " + detailedStats.solvedAttemptsStats[6] + "회")
+    val maxAttempts = when (quizLevel) {
+        QuizLevel.EASY -> 7
+        QuizLevel.CHALLENGE -> 8
+        else -> 6
     }
 
+    (0 until maxAttempts).forEach { i ->
+        Text("${i + 1}: ${detailedStats.solvedAttemptsStats[i]}회")
+    }
 }

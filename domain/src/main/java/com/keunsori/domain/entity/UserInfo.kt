@@ -1,7 +1,11 @@
 package com.keunsori.domain.entity
 
 data class UserInfo(
+    val id: String,
+    val email: String,
+    val name: String,
     val solveCount: Int,
+    val totalCnt: Int,
     val lastSolve: String,
     val detailedStats: Map<QuizLevel, DetailedStats>
 ) {
@@ -14,7 +18,11 @@ data class UserInfo(
 
     companion object {
         val Empty = UserInfo(
+            id = "",
+            email = "",
+            name = "",
             solveCount = 0,
+            totalCnt = 0,
             lastSolve = "",
             detailedStats = mapOf(),
         )

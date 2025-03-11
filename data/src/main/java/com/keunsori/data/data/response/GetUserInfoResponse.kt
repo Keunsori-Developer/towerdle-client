@@ -9,7 +9,8 @@ data class GetUserInfoResponse (
     val quizStats: QuizStat
 ):BaseResponse() {
     data class QuizStat (
-        val solveCount: Int,
+        val solvedCnt: Int,
+        val totalCnt: Int,
         val lastSolve: String?,
         val details: Details
     ) {
@@ -44,6 +45,8 @@ data class GetUserInfoResponse (
                     val sixthAttempt: Int,
                     @SerializedName("7")
                     val seventhAttempt: Int,
+                    @SerializedName("8")
+                    val eighthAttempt: Int,
                 )
             }
         }

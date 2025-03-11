@@ -51,7 +51,8 @@ class UserRepositoryImpl @Inject constructor(
         return try {
             val res =
                 userRemoteDataSource.googleLogin(oauthRequest = OauthRequest(jwt = googleIdToken))
-
+       
+            localDataSource.clearChallengeModeData()
             localDataSource.setAccessToken(accessToken = res.accessToken)
             localDataSource.setRefreshToken(refreshToken = res.refreshToken)
             localDataSource.googleLogin()
@@ -139,7 +140,11 @@ class UserRepositoryImpl @Inject constructor(
         return try {
             ApiResult.Success(
                 data = UserInfo(
-                    solveCount = userInfo.quizStats.solveCount,
+                    id = userInfo.id,
+                    name = userInfo.name,
+                    email = userInfo.email,
+                    solveCount = userInfo.quizStats.solvedCnt,
+                    totalCnt = userInfo.quizStats.totalCnt,
                     lastSolve = userInfo.quizStats.lastSolve ?: "",
                     detailedStats = mapOf(
                         QuizLevel.EASY to if (userInfo.quizStats.details.easy == null) UserInfo.DetailedStats() else UserInfo.DetailedStats(
@@ -152,7 +157,7 @@ class UserRepositoryImpl @Inject constructor(
                                 userInfo.quizStats.details.easy.solvedAttemptsStats.fourthAttempt,
                                 userInfo.quizStats.details.easy.solvedAttemptsStats.fifthAttempt,
                                 userInfo.quizStats.details.easy.solvedAttemptsStats.sixthAttempt,
-                                userInfo.quizStats.details.easy.solvedAttemptsStats.seventhAttempt
+                                userInfo.quizStats.details.easy.solvedAttemptsStats.seventhAttempt,
                             ),
                             solveStreak = userInfo.quizStats.details.easy.solveStreak
                         ),
@@ -191,7 +196,9 @@ class UserRepositoryImpl @Inject constructor(
                                 userInfo.quizStats.details.challenge.solvedAttemptsStats.thirdAttempt,
                                 userInfo.quizStats.details.challenge.solvedAttemptsStats.fourthAttempt,
                                 userInfo.quizStats.details.challenge.solvedAttemptsStats.fifthAttempt,
-                                userInfo.quizStats.details.challenge.solvedAttemptsStats.sixthAttempt
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.sixthAttempt,
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.seventhAttempt,
+                                userInfo.quizStats.details.challenge.solvedAttemptsStats.eighthAttempt
                             ),
                             solveStreak = userInfo.quizStats.details.challenge.solveStreak
                         )
