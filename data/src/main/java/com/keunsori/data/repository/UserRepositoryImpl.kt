@@ -51,7 +51,8 @@ class UserRepositoryImpl @Inject constructor(
         return try {
             val res =
                 userRemoteDataSource.googleLogin(oauthRequest = OauthRequest(jwt = googleIdToken))
-
+       
+            localDataSource.clearChallengeModeData()
             localDataSource.setAccessToken(accessToken = res.accessToken)
             localDataSource.setRefreshToken(refreshToken = res.refreshToken)
             localDataSource.googleLogin()
