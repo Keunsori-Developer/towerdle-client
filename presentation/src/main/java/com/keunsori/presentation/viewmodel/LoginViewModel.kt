@@ -78,7 +78,6 @@ class LoginViewModel @Inject constructor(
                 userUseCase.autoGoogleLogin() // 로그인 API -> googleIdToken으로 refresh, access token을 받아옴
             when (res) {
                 is ApiResult.Success -> {
-                    sendEvent(LoginEvent.GetUserInfo)
                     sendEvent(
                         LoginEvent.SuccessGoogleLogin(
                             email = res.data.user.email,
