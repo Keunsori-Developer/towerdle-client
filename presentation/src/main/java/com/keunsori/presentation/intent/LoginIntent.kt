@@ -88,7 +88,8 @@ class LoginReducer(state: LoginState) : Reducer<LoginState, LoginEvent>(state) {
             is LoginEvent.SaveUserInfo -> {
                 setState(
                     newState = oldState.copy(
-                        userInfo = event.userInfo
+                        userInfo = event.userInfo,
+                        isGoogleLogin = event.userInfo.email.isNotEmpty()
                     )
                 )
             }
