@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,11 +36,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.credentials.ClearCredentialStateRequest
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.keunsori.domain.entity.QuizLevel
 import com.keunsori.domain.entity.UserInfo
 import com.keunsori.presentation.R
@@ -76,44 +79,30 @@ fun SettingScreen(
             stringResource(id = R.string.my_info),
             onBackButtonClicked = { loginViewModel.sendEffect(LoginEffect.MoveToMain) })
 
-        if (uiState.isGoogleLogin) {
-            LoginStateScreen(
-                title = "구글 로그인 완료",
-                buttonTitle = "로그아웃",
-                uiState = uiState,
-                onClick = {
-                    loginViewModel.logout {
-                        credentialManager!!.clearCredentialState(ClearCredentialStateRequest())
-                    }
-                }, onClickDetailButton = {
-                    loginViewModel.sendEvent(LoginEvent.SetDetailDialogState(true))
-                }
-            ) {
-                Text("계정: " + uiState.userInfo.email)
-                Text("이름: " + uiState.userInfo.name)
-            }
-        } else {
-            LoginStateScreen(
-                title = "게스트 계정 상태",
-                buttonTitle = "구글 로그인",
-                uiState = uiState,
-                onClick = {
-                    coroutineScope.launch {
-                        googleLogin(
-                            credentialManager = credentialManager!!,
-                            context = context,
-                            onSuccess = {
-                                loginViewModel.sendEvent(LoginEvent.GoogleLogin(idToken = it))
-                            })
-                    }
-                }, onClickDetailButton = {
-                    loginViewModel.sendEvent(LoginEvent.SetDetailDialogState(true))
-                }) {
-                Text("이름: " + uiState.userInfo.name, fontWeight = FontWeight.SemiBold)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "계정 연동을 통해\n게임 데이터를 유지해주세요!", fontSize = 15.sp)
-            }
+
+        LoginStateScreen(
+            title = "게스트 계정 상태",
+            uiState = uiState,
+            onClickDetailButton = {
+                loginViewModel.sendEvent(LoginEvent.SetDetailDialogState(true))
+            }) {
+            Text("이름: " + uiState.userInfo.name, fontWeight = FontWeight.SemiBold)
         }
+        /*TextButton(onClick = {
+            coroutineScope.launch {
+                googleLogin(
+                    credentialManager = credentialManager!!,
+                    context = context,
+                    onSuccess = {
+                        loginViewModel.sendEvent(LoginEvent.GoogleLogin(idToken = it))
+                    })
+            }
+        }) {
+            Image(
+                painter = painterResource(R.drawable.android_light_rd_si),
+                contentDescription = null
+            )
+        }*/
     }
 
 
@@ -192,8 +181,6 @@ fun SettingScreen(
 @Composable
 fun LoginStateScreen(
     title: String,
-    buttonTitle: String,
-    onClick: () -> Unit,
     onClickDetailButton: () -> Unit,
     uiState: LoginState,
     content: @Composable () -> Unit,
@@ -204,7 +191,7 @@ fun LoginStateScreen(
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = title, fontSize = 20.sp, modifier = Modifier.fillMaxWidth())
+        //Text(text = title, fontSize = 20.sp, modifier = Modifier.fillMaxWidth())
 
         Column(
             Modifier
@@ -221,7 +208,7 @@ fun LoginStateScreen(
             content.invoke()
             Text("통계", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 15.dp))
             Text("맞춘 문제 수: " + uiState.userInfo.solveCount.toString(), fontSize = 15.sp)
-            Text("시도 횟수: " + uiState.userInfo.solveCount.toString(), fontSize = 15.sp)
+            Text("시도 횟수: " + uiState.userInfo.totalCnt.toString(), fontSize = 15.sp)
             Text("마지막 푼 날짜: " + uiState.userInfo.lastSolve, fontSize = 15.sp)
 
             ElevatedButton(onClick = {
@@ -230,14 +217,7 @@ fun LoginStateScreen(
                 Text(text = "자세히")
             }
         }
-
-        ElevatedButton(onClick = {
-            onClick.invoke()
-        }) {
-            Text(text = buttonTitle)
-        }
     }
-
 }
 
 @Composable
@@ -254,5 +234,40 @@ fun DetailedStats(quizLevel: QuizLevel, detailedStats: UserInfo.DetailedStats) {
 
     (0 until maxAttempts).forEach { i ->
         Text("${i + 1}: ${detailedStats.solvedAttemptsStats[i]}회")
+    }
+}
+
+@Preview
+@Composable
+fun PreviewSettingScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top)
+    ) {
+        TopBar(
+            stringResource(id = R.string.my_info),
+            onBackButtonClicked = { })
+
+        LoginStateScreen(
+            title = "게스트 계정 상태",
+            uiState = LoginState.init(),
+            onClickDetailButton = {
+
+            }) {
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "계정 연동을 통해\n게임 데이터를 유지해주세요!", fontSize = 15.sp)
+        }
+        TextButton(onClick = {
+
+        }) {
+            Image(
+                painter = painterResource(R.drawable.android_light_rd_si),
+                contentDescription = null
+            )
+        }
     }
 }

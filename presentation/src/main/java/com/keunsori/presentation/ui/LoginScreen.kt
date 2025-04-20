@@ -39,7 +39,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
         viewModel.getIsGoogleLoggedIn().collectAsState(initial = null).value
 
     // 로그인
-    LaunchedEffect(key1 = isGoogleLoggedIn) {
+    /*LaunchedEffect(key1 = isGoogleLoggedIn) {
         if (isGoogleLoggedIn != null) {
             if (isGoogleLoggedIn) {
                 viewModel.sendEvent(LoginEvent.AutoGoogleLogin)
@@ -47,6 +47,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
                 viewModel.sendEvent(LoginEvent.GuestLogin)
             }
         }
+    }*/
+    LaunchedEffect(Unit) {
+        viewModel.sendEvent(LoginEvent.GuestLogin)
     }
 
     Column(
